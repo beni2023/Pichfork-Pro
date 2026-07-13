@@ -79,7 +79,8 @@ int OnInit()
 
    ReplaceEngine.SetEngines(
                             GeometryEngine,
-                            Renderer
+                            Renderer,
+                            ObjectManager
                            );
 
 
