@@ -64,6 +64,13 @@ int OnInit()
 
    Print("Pitchfork Pro MT5 Build 0.5.0 Started");
 
+   // Verify chart permissions
+   if(!ChartGetInteger(0,CHART_MODE))
+   {
+      Print("OnInit : Chart access error");
+      return(INIT_FAILED);
+   }
+
 
 
    ObjectManager.Init();

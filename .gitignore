@@ -1,0 +1,29 @@
+# MetaTrader 5 compiled files
+*.ex5
+
+# Backup files
+*.mq5.bak
+*.mqh.bak
+
+# Logs
+*.log
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+temp/
+
+# Python cache (for build scripts)
+__pycache__/
+.pytest_cache/
+.mypy_cache/

@@ -11,7 +11,7 @@ public:
    {
       int found = 0;
 
-      int total = ObjectsTotal(0,-1,-1);
+      int total = ObjectsTotal(0,-1,OBJ_PITCHFORK);
 
       Print("========== OBJECT SCAN ==========");
 

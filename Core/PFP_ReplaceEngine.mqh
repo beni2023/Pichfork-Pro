@@ -188,9 +188,13 @@ bool Replace(CPFP_Pitchfork &pf)
 
    temp.SetActive(true);
 
-   temp.SetDirection(
-                    PFP_BULLISH
-                   );
+   // Detect direction based on price movement
+   if(temp.PriceC() > temp.PriceA())
+      temp.SetDirection(PFP_BULLISH);
+   else if(temp.PriceC() < temp.PriceA())
+      temp.SetDirection(PFP_BEARISH);
+   else
+      temp.SetDirection(PFP_NEUTRAL);
 
 
 
