@@ -7,6 +7,7 @@
 #include "PFP_GeometryEngine.mqh"
 #include "PFP_GeometryData.mqh"
 #include "PFP_Renderer.mqh"
+#include "PFP_ObjectManager.mqh"
 
 
 
@@ -23,6 +24,8 @@ private:
    CPFP_GeometryEngine *m_geometry;
 
    CPFP_Renderer *m_renderer;
+   
+   CPFP_ObjectManager *m_objManager;
 
 
 
@@ -38,6 +41,8 @@ CPFP_ReplaceEngine()
    m_geometry=NULL;
 
    m_renderer=NULL;
+   
+   m_objManager=NULL;
 
 }
 
@@ -49,19 +54,25 @@ CPFP_ReplaceEngine()
 
 void SetEngines(
                 CPFP_GeometryEngine &geo,
-                CPFP_Renderer &renderer
+                CPFP_Renderer &renderer,
+                CPFP_ObjectManager &objManager
                )
 {
 
    m_geometry=&geo;
 
    m_renderer=&renderer;
+   
+   m_objManager=&objManager;
 
 }
 
 
 
 
+};  
+
+#endif
 
 //--------------------------------------------------
 // Find Original MT5 Pitchfork
@@ -75,7 +86,7 @@ bool FindOriginal(string &name)
       ObjectsTotal(
                    0,
                    -1,
-                   -1
+                   OBJ_PITCHFORK
                   );
 
 
@@ -91,6 +102,15 @@ bool FindOriginal(string &name)
                     -1,
                     -1
                    );
+
+
+
+      if(obj=="")
+         continue;
+      
+      // Ignore PFP objects
+      if(StringFind(obj, PFP_PREFIX) == 0)
+         continue;
 
 
 
@@ -124,7 +144,6 @@ bool FindOriginal(string &name)
 
 
 
-
 //--------------------------------------------------
 // Replace
 //--------------------------------------------------
@@ -134,7 +153,8 @@ bool Replace(CPFP_Pitchfork &pf)
 
 
    if(m_geometry==NULL ||
-      m_renderer==NULL)
+      m_renderer==NULL ||
+      m_objManager==NULL)
    {
 
       Print("ReplaceEngine : Engines Not Connected");
@@ -142,7 +162,6 @@ bool Replace(CPFP_Pitchfork &pf)
       return(false);
 
    }
-
 
 
 
@@ -159,7 +178,6 @@ bool Replace(CPFP_Pitchfork &pf)
       return(false);
 
    }
-
 
 
 
@@ -183,8 +201,10 @@ bool Replace(CPFP_Pitchfork &pf)
 
 
 
-
-   temp.SetID("PFP_REPLACED_001");
+   // Generate unique ID
+   string id="PFP_REPL_"+TimeToString(TimeCurrent(),TIME_SECONDS);
+   id=StringReplace(id,":","_");
+   temp.SetID(id);
 
    temp.SetActive(true);
 
@@ -195,6 +215,7 @@ bool Replace(CPFP_Pitchfork &pf)
       temp.SetDirection(PFP_BEARISH);
    else
       temp.SetDirection(PFP_NEUTRAL);
+
 
 
 
@@ -211,6 +232,7 @@ bool Replace(CPFP_Pitchfork &pf)
       return(false);
 
    }
+
 
 
 
@@ -235,6 +257,7 @@ bool Replace(CPFP_Pitchfork &pf)
 
 
 
+
    m_renderer.Draw(
                    temp,
                    geo
@@ -243,17 +266,20 @@ bool Replace(CPFP_Pitchfork &pf)
 
 
 
+
+
    pf=temp;
 
 
 
-   Print("ReplaceEngine : Completed");
+   Print("ReplaceEngine : Completed, ID=",temp.ID());
 
 
 
    return(true);
 
 }
+
 
 
 
