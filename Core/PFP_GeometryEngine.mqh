@@ -226,13 +226,16 @@ bool Build(
 
 
 
+   if(dx==0)
+   {
+      Print("Geometry : Zero Time Vector");
+      return(false);
+   }
+   
    if(dx==0 && dy==0)
    {
-
       Print("Geometry : Zero Vector");
-
       return(false);
-
    }
 
 

@@ -299,10 +299,6 @@ bool Load(CPFP_Pitchfork &pf)
                      );
 
 
-
-
-
-
    //----------------------------------
    // Points
    //----------------------------------
@@ -316,9 +312,6 @@ bool Load(CPFP_Pitchfork &pf)
       FileReadDouble(file);
 
 
-
-
-
    datetime tb=
       (datetime)
       FileReadLong(file);
@@ -326,10 +319,6 @@ bool Load(CPFP_Pitchfork &pf)
 
    double pb=
       FileReadDouble(file);
-
-
-
-
 
 
    datetime tc=
@@ -341,16 +330,7 @@ bool Load(CPFP_Pitchfork &pf)
       FileReadDouble(file);
 
 
-
-
-
-
    FileClose(file);
-
-
-
-
-
 
 
    pf.SetPointA(
