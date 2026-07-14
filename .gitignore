@@ -1,13 +1,10 @@
-```
 # Compiled/Binary files
-*.mqh
-*.mq5
-
-# MetaQuotes specific
 *.ex5
 *.fxt
 *.hst
 *.set
+
+# MetaQuotes specific
 *.log
 
 # Dependencies
@@ -32,4 +29,3 @@ include/
 # System
 .DS_Store
 Thumbs.db
-```
