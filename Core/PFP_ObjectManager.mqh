@@ -1,39 +1,48 @@
 #ifndef PFP_OBJECTMANAGER_MQH
 #define PFP_OBJECTMANAGER_MQH
 
-
 #include "../Utils/PFP_Constants.mqh"
-
-
-
-
+#include "../Utils/PFP_Logger.mqh"
+#include "PFP_MultiManager.mqh"
+#include "PFP_Renderer.mqh"
+#include "PFP_GeometryEngine.mqh"
 
 class CPFP_ObjectManager
 {
 
+private:
+
+   CPFP_Logger        *m_logger;
+   CPFP_MultiManager  *m_manager;
+   CPFP_Renderer      *m_renderer;
+   CPFP_GeometryEngine *m_geometry;
 
 public:
 
-
-
-
 //==================================================
-// Init
+// Constructor
 //==================================================
 
-void Init()
+CPFP_ObjectManager(CPFP_Logger *logger, CPFP_MultiManager *manager)
 {
-
-
-   Print("ObjectManager Initialized");
-
-
+   m_logger = logger;
+   m_manager = manager;
+   m_renderer = NULL;
+   m_geometry = NULL;
+   
+   if(m_logger != NULL)
+      m_logger.Info("ObjectManager Initialized");
 }
 
+//==================================================
+// Set Engines
+//==================================================
 
-
-
-
+void SetEngines(CPFP_Renderer *renderer, CPFP_GeometryEngine *geometry)
+{
+   m_renderer = renderer;
+   m_geometry = geometry;
+}
 
 //==================================================
 // Clear All PFP Objects
@@ -42,14 +51,12 @@ void Init()
 void Clear()
 {
 
-
    int total=
       ObjectsTotal(
                    0,
                    -1,
                    -1
                   );
-
 
 
    for(int i=total-1;i>=0;i--)
@@ -63,7 +70,6 @@ void Clear()
                     -1,
                     -1
                    );
-
 
 
       if(name=="")
@@ -92,12 +98,12 @@ void Clear()
 
 
 
-   Print("ObjectManager : PFP Objects Cleared");
-
+   if(m_logger != NULL)
+      m_logger.Info("ObjectManager : PFP Objects Cleared");
+   else
+      Print("ObjectManager : PFP Objects Cleared");
 
 }
-
-
 
 
 
@@ -126,8 +132,6 @@ bool Remove(string name)
 
 
 }
-
-
 
 
 
@@ -165,7 +169,6 @@ bool DeleteOriginalPitchfork()
                    );
 
 
-
       if(name=="")
          continue;
 
@@ -196,11 +199,10 @@ bool DeleteOriginalPitchfork()
          {
 
 
-            Print(
-                  "Original Pitchfork Deleted : ",
-                  name
-                 );
-
+            if(m_logger != NULL)
+               m_logger.Info("Original Pitchfork Deleted : " + name);
+            else
+               Print("Original Pitchfork Deleted : ", name);
 
             return(true);
 
@@ -217,15 +219,15 @@ bool DeleteOriginalPitchfork()
 
 
 
-   Print("No Original Pitchfork Found");
-
+   if(m_logger != NULL)
+      m_logger.Info("No Original Pitchfork Found");
+   else
+      Print("No Original Pitchfork Found");
 
    return(false);
 
 
 }
-
-
 
 
 
@@ -282,17 +284,12 @@ int Count()
 
 
 
+
    return(result);
 
 
 }
 
-
-
-
-
 };
-
-
 
 #endif
