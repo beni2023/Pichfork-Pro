@@ -290,6 +290,32 @@ int Count()
 
 }
 
+//--------------------------------------------------
+// Delete all objects for a specific pitchfork ID
+//--------------------------------------------------
+
+void DeletePitchforkObjects(const string &pfID)
+{
+   if(m_logger != NULL)
+      m_logger.Debug("ObjectManager: Deleting objects for " + pfID);
+   
+   // Delete all chart objects with this ID prefix
+   int total = ObjectsTotal(0, 0, -1);
+   string prefix = "PFP_" + pfID + "_";
+   
+   for(int i = total - 1; i >= 0; i--)
+   {
+      string name = ObjectName(0, i, 0, -1);
+      if(StringFind(name, prefix) == 0)
+      {
+         ObjectDelete(0, name);
+      }
+   }
+   
+   if(m_logger != NULL)
+      m_logger.Debug("ObjectManager: Deleted objects for " + pfID);
+}
+
 };
 
 #endif
