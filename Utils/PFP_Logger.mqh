@@ -14,6 +14,11 @@ enum ENUM_PFP_LOG_LEVEL
    LOG_LEVEL_NONE  = 4       // غیرفعال کردن کامل لاگ
 };
 
+//--- ثابت جهانی برای حالت Debug/Release
+#ifndef PFP_DEBUG
+#define PFP_DEBUG true
+#endif
+
 //+------------------------------------------------------------------+
 //| کلاس مدیریت لاگ متمرکز                                           |
 //+------------------------------------------------------------------+
@@ -33,8 +38,16 @@ public:
                const ENUM_PFP_LOG_LEVEL level = LOG_LEVEL_INFO)
    {
       m_Prefix = prefix;
-      m_ShowLogs = showLogs;
-      m_LogLevel = level;
+      
+      // در حالت Release (PFP_DEBUG=false)، لاگ‌ها غیرفعال می‌شوند
+      #ifndef PFP_DEBUG
+         m_ShowLogs = false;
+         m_LogLevel = LOG_LEVEL_NONE;
+      #else
+         m_ShowLogs = showLogs;
+         m_LogLevel = level;
+      #endif
+      
       m_MessageCount = 0;
       m_StartTime = TimeCurrent();
    }
@@ -64,6 +77,12 @@ public:
    void EnableLogging(bool enable)
    {
       m_ShowLogs = enable;
+   }
+   
+   //--- بررسی فعال بودن لاگ
+   bool IsEnabled() const
+   {
+      return m_ShowLogs && m_LogLevel != LOG_LEVEL_NONE;
    }
    
    //--- لاگ سطح DEBUG
