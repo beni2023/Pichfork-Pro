@@ -1,31 +1,29 @@
+```
 # Compiled/Binary files
+*.mqe
 *.ex5
 *.fxt
+*.gsc
 *.hst
-*.set
-
-# MetaQuotes specific
+*.csv
 *.log
 
-# Dependencies
-include/
+# Dependencies and build artifacts
+MQL5/Libraries/
+MQL5/Cache/
+MQL5/Terminal64.exe.stackdump
 
-# Build artifacts
-*.dll
-*.so
-*.a
-*.lib
-
-# Editor/IDE
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *.tmp
 
-# Logs
-*.log
-
-# System
+# System files
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+```
