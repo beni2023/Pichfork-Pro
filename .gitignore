@@ -1,29 +1,35 @@
-# MetaTrader 5 compiled files
+```
+# Compiled/Binary files
+*.mqh
+*.mq5
+
+# MetaQuotes specific
 *.ex5
-
-# Backup files
-*.mq5.bak
-*.mqh.bak
-
-# Logs
+*.fxt
+*.hst
+*.set
 *.log
-*.cache
 
-# OS files
-.DS_Store
-Thumbs.db
+# Dependencies
+include/
 
-# IDE
+# Build artifacts
+*.dll
+*.so
+*.a
+*.lib
+
+# Editor/IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Temporary files
 *.tmp
-temp/
 
-# Python cache (for build scripts)
-__pycache__/
-.pytest_cache/
-.mypy_cache/
+# Logs
+*.log
+
+# System
+.DS_Store
+Thumbs.db
+```

@@ -1,14 +1,17 @@
 //+------------------------------------------------------------------+
 //|                     PitchforkPro.mq5                              |
+//|                        نسخه 0.6.0                                 |
 //+------------------------------------------------------------------+
 
 #property indicator_chart_window
 #property strict
 #property indicator_plots 0
-
+#property version   "0.6.0"
+#property description "اندیکاتور پیشرفته چنگال اندروز با قابلیت ذخیره‌سازی، جایگزینی و تشخیص هوشمند"
 
 
 #include "Utils/PFP_Constants.mqh"
+#include "Utils/PFP_Logger.mqh"
 
 #include "Core/PFP_Pitchfork.mqh"
 #include "Core/PFP_ObjectManager.mqh"
@@ -20,177 +23,130 @@
 #include "Core/PFP_Storage.mqh"
 #include "Core/PFP_ReplaceEngine.mqh"
 #include "Core/PFP_Manager.mqh"
+#include "Core/PFP_MultiManager.mqh"
 
 
+//--- ورودی‌های کاربر
+input group "تنظیمات کلیدی"
+input bool   Inp_EnableScanner    = true;           // فعال‌سازی اسکنر خودکار
+input string Inp_ScanKey          = "S";            // کلید اسکن و ذخیره (پیش‌فرض: S)
+input string Inp_ReplaceKey       = "R";            // کلید جایگزینی (پیش‌فرض: R)
+
+input group "تنظیمات ظاهری"
+input color  Inp_ColorMain        = clrDodgerBlue;  // رنگ خطوط اصلی
+input color  Inp_ColorMedian      = clrYellow;      // رنگ خط میانی
+input color  Inp_ColorWarning     = clrOrangeRed;   // رنگ خطوط اخطار/کمکی
+input int    Inp_WidthMain        = 2;              // ضخامت خطوط اصلی
+input int    Inp_WidthMedian      = 1;              // ضخامت خط میانی
+
+input group "تنظیمات سیستم"
+input bool   Inp_ShowLogs         = true;           // نمایش لاگ‌ها در کنسول
+input bool   Inp_DeepDebug        = false;          // حالت دیباگ عمیق (توصیه نمی‌شود)
 
 
+//--- متغیرهای سراسری
+CPFP_Logger        *g_Logger = NULL;
+CPFP_MultiManager  *g_Manager = NULL;
+CPFP_ObjectManager *g_ObjectMgr = NULL;
 
-
-CPFP_ObjectManager    ObjectManager;
-
-CPFP_GeometryEngine   GeometryEngine;
-
-CPFP_ObjectScanner    Scanner;
-
-CPFP_PitchforkReader  Reader;
-
-
-CPFP_Renderer         Renderer;
-
-CPFP_Storage          PFPStorage;
-
-CPFP_ReplaceEngine    ReplaceEngine;
-
-
-CPFP_Manager          PitchforkManager;
-
-
-
-CPFP_GeometryData     ActiveGeometry;
-
-
-
-
-
+//--- وضعیت‌های سیستم
+bool g_IsProcessing = false;          // قفل پردازش برای جلوگیری از تداخل
+datetime g_LastBarTime = 0;           // زمان آخرین کندل پردازش شده
+string g_SelectedPitchforkID = "";    // شناسه پیچ‌فورک انتخاب شده توسط کاربر
 
 
 //+------------------------------------------------------------------+
 //| INIT                                                              |
 //+------------------------------------------------------------------+
-
 int OnInit()
 {
-
-
-   Print("Pitchfork Pro MT5 Build 0.5.0 Started");
-
-   // Verify chart permissions
-   if(!ChartGetInteger(0,CHART_MODE))
+   //--- ایجاد نمونه لاگر
+   ENUM_PFP_LOG_LEVEL logLevel = Inp_DeepDebug ? LOG_LEVEL_DEBUG : LOG_LEVEL_INFO;
+   g_Logger = new CPFP_Logger("PitchforkPro", Inp_ShowLogs, logLevel);
+   
+   if(g_Logger == NULL)
    {
-      Print("OnInit : Chart access error");
-      return(INIT_FAILED);
+      Print("خطای بحرانی: عدم امکان ایجاد Logger");
+      return INIT_FAILED;
+   }
+   
+   g_Logger.Info("شروع راه‌اندازی PitchforkPro v0.6.0");
+
+   //--- بررسی دسترسی به چارت
+   if(!ChartGetInteger(0, CHART_MODE))
+   {
+      g_Logger.Error("خطا در دسترسی به چارت");
+      delete g_Logger;
+      return INIT_FAILED;
    }
 
-
-
-   ObjectManager.Init();
-
-
-
-   ReplaceEngine.SetEngines(
-                            GeometryEngine,
-                            Renderer
-                           );
-
-
-
-
-   PitchforkManager.Clear();
-
-
-
-
-
-
-   CPFP_Pitchfork Loaded;
-
-
-
-   if(PFPStorage.Load(Loaded))
+   //--- ایجاد مدیر چندگانه (MultiManager)
+   g_Manager = new CPFP_MultiManager(g_Logger);
+   if(g_Manager == NULL)
    {
+      g_Logger.Error("خطا در ایجاد MultiManager");
+      delete g_Logger;
+      return INIT_FAILED;
+   }
 
+   //--- ایجاد مدیر اشیاء (ObjectManager)
+   g_ObjectMgr = new CPFP_ObjectManager(g_Logger, g_Manager);
+   if(g_ObjectMgr == NULL)
+   {
+      g_Logger.Error("خطا در ایجاد ObjectManager");
+      delete g_Manager;
+      delete g_Logger;
+      return INIT_FAILED;
+   }
 
-      Print("Saved Pitchfork Loaded");
-
-
-
-      PitchforkManager.Set(Loaded);
-
-
-
-
-      if(GeometryEngine.Build(
-                              Loaded,
-                              ActiveGeometry
-                             ))
-      {
-
-
-         Renderer.Draw(
-                       Loaded,
-                       ActiveGeometry
-                      );
-
-
-      }
-
-
+   //--- بارگذاری داده‌های ذخیره شده
+   if(!g_Manager.LoadAll())
+   {
+      g_Logger.Warning("بارگذاری داده‌های قبلی با مشکل مواجه شد یا فایلی وجود ندارد.");
    }
    else
    {
-
-      Print("No Saved Pitchfork");
-
+      g_Logger.Info("داده‌های ذخیره شده با موفقیت بارگذاری شدند.");
    }
 
+   //--- تنظیم تایمر برای بررسی دوره‌ای
+   EventSetTimer(1); // بررسی هر 1 ثانیه
 
-
-
-
-   return(INIT_SUCCEEDED);
-
+   g_Logger.Info("راه‌اندازی با موفقیت انجام شد.");
+   return INIT_SUCCEEDED;
 }
-
-
-
-
-
 
 
 //+------------------------------------------------------------------+
 //| DEINIT                                                            |
 //+------------------------------------------------------------------+
-
 void OnDeinit(const int reason)
 {
-
-
-   CPFP_Pitchfork Current;
-
-
-
-   if(PitchforkManager.Get(Current))
+   if(g_Logger != NULL)
+      g_Logger.Info("خاموش کردن اندیکاتور. دلیل: " + IntegerToString(reason));
+   
+   //--- ذخیره داده‌ها قبل از خروج
+   if(g_Manager != NULL)
    {
-
-      Renderer.Clear(Current);
-
+      g_Manager.SaveAll();
+      delete g_Manager;
    }
+   
+   if(g_ObjectMgr != NULL)
+      delete g_ObjectMgr;
+      
+   if(g_Logger != NULL)
+      delete g_Logger;
 
-
-
-
-   ObjectManager.Clear();
-
-
-
-   Print("Pitchfork Pro Removed");
-
-
+   EventKillTimer();
+   Comment(""); // پاک کردن متن روی چارت
 }
-
-
-
-
-
-
 
 
 //+------------------------------------------------------------------+
 //| CALCULATE                                                         |
 //+------------------------------------------------------------------+
-
-int OnCalculate(
-                const int rates_total,
+int OnCalculate(const int rates_total,
                 const int prev_calculated,
                 const datetime &time[],
                 const double &open[],
@@ -199,197 +155,191 @@ int OnCalculate(
                 const double &close[],
                 const long &tick_volume[],
                 const long &volume[],
-                const int &spread[]
-               )
+                const int &spread[])
 {
+   //--- اگر در حال پردازش هستیم، محاسبه جدید را نادیده بگیر
+   if(g_IsProcessing) return prev_calculated;
+   
+   //--- اگر داده‌های کافی نداریم
+   if(rates_total < 3) return 0;
 
-   return(rates_total);
+   //--- بررسی تغییر کندل جدید
+   datetime currentBarTime = time[rates_total - 1];
+   if(currentBarTime == g_LastBarTime && prev_calculated > 0)
+   {
+      return prev_calculated;
+   }
+   
+   g_LastBarTime = currentBarTime;
+   g_IsProcessing = true;
 
+   //--- همگام‌سازی وضعیت اشیاء با داده‌های حافظه
+   if(g_ObjectMgr != NULL)
+   {
+      g_ObjectMgr.SyncWithChart();
+   }
+
+   //--- رسم مجدد تمام پیچ‌فورک‌های فعال
+   if(g_Manager != NULL)
+   {
+      g_Manager.RenderAllActive();
+   }
+
+   g_IsProcessing = false;
+   return rates_total;
 }
-
-
-
-
-
-
 
 
 //+------------------------------------------------------------------+
 //| EVENTS                                                            |
 //+------------------------------------------------------------------+
-
-void OnChartEvent(
-                  const int id,
+void OnChartEvent(const int id,
                   const long &lparam,
                   const double &dparam,
-                  const string &sparam
-                 )
+                  const string &sparam)
 {
-
-
-   if(id!=CHARTEVENT_KEYDOWN)
-      return;
-
-
-
-
-
-
-//==================================================
-// S = Capture + Save + Draw
-//==================================================
-
-if(lparam==83)
-{
-
-
-   Print("KEY S");
-
-
-
-   CPFP_Pitchfork NewPitchfork;
-
-
-
-   Scanner.Scan();
-
-
-
-   if(!Reader.FindPitchfork(NewPitchfork))
+   if(id == CHARTEVENT_KEYDOWN)
    {
-
-      Print("No Pitchfork Found");
-
-      return;
-
+      string key = StringSubstr(sparam, 0, 1);
+      
+      //--- کلید اسکن (S)
+      if(StringToUpper(key) == StringToUpper(Inp_ScanKey))
+      {
+         g_Logger.Info("دستور اسکن دریافت شد (کلید: " + Inp_ScanKey + ")");
+         HandleScanCommand();
+      }
+      
+      //--- کلید جایگزینی (R)
+      if(StringToUpper(key) == StringToUpper(Inp_ReplaceKey))
+      {
+         g_Logger.Info("دستور جایگزینی دریافت شد (کلید: " + Inp_ReplaceKey + ")");
+         HandleReplaceCommand();
+      }
+      
+      //--- کلید حذف (D یا Delete)
+      if(key == "D" || key == "DELETE") 
+      {
+         if(!StringIsEmpty(g_SelectedPitchforkID))
+         {
+            g_Logger.Info("حذف پیچ‌فورک انتخاب شده: " + g_SelectedPitchforkID);
+            g_Manager.RemovePitchfork(g_SelectedPitchforkID);
+            g_SelectedPitchforkID = "";
+            g_ObjectMgr.ClearSelection();
+            Comment("");
+         }
+      }
    }
-
-
-
-
-
-   NewPitchfork.SetID(
-                      "PFP_STD_001"
-                     );
-
-
-
-   NewPitchfork.SetDirection(
-                             PFP_BULLISH
-                            );
-
-
-
-   NewPitchfork.SetActive(true);
-
-
-
-
-
-
-   if(!GeometryEngine.Build(
-                           NewPitchfork,
-                           ActiveGeometry
-                          ))
+   
+   //--- رویداد کلیک ماوس (برای انتخاب پیچ‌فورک)
+   if(id == CHARTEVENT_OBJECT_CLICK)
    {
-
-      Print("Geometry Failed");
-
-      return;
-
+      string objName = sparam;
+      if(StringFind(objName, "PFP_") == 0)
+      {
+         if(ExtractIDFromObjectName(objName, g_SelectedPitchforkID))
+         {
+            g_Logger.Debug("پیچ‌فورک انتخاب شد: " + g_SelectedPitchforkID);
+            Comment("پیچ‌فورک فعال: " + g_SelectedPitchforkID + "\nبرای حذف کلید D را بزنید.");
+         }
+      }
    }
-
-
-
-
-
-
-   Renderer.Draw(
-                 NewPitchfork,
-                 ActiveGeometry
-                );
-
-
-
-
-
-   PitchforkManager.Set(
-                        NewPitchfork
-                       );
-
-
-
-
-
-   if(PFPStorage.Save(NewPitchfork))
+   
+   //--- رویداد تغییر شیء (جابجایی نقاط توسط کاربر)
+   if(id == CHARTEVENT_OBJECT_CHANGE)
    {
-
-      Print("Pitchfork Saved");
-
+      string objName = sparam;
+      if(StringFind(objName, "PFP_") == 0)
+      {
+         string pfID = "";
+         if(ExtractIDFromObjectName(objName, pfID))
+         {
+            g_Logger.Debug("تغییر دستی detected در: " + pfID);
+            g_ObjectMgr.UpdateCoordinatesFromChart(pfID);
+         }
+      }
    }
-
-
-
 }
 
 
-
-
-
-
-
-
-//==================================================
-// R = Replace
-//==================================================
-
-if(lparam==82)
+//+------------------------------------------------------------------+
+//| TIMER                                                             |
+//+------------------------------------------------------------------+
+void OnTimer()
 {
-
-
-   Print("KEY R");
-
-
-
-   CPFP_Pitchfork Current;
-
-
-
-   if(!PitchforkManager.Get(Current))
+   // بررسی سلامت اشیاء و پاکسازی اشیاء یتیم
+   if(g_ObjectMgr != NULL)
    {
+      g_ObjectMgr.CleanupOrphans();
+   }
+}
 
-      Print("No Active Pitchfork");
 
+//+------------------------------------------------------------------+
+//| هندلر دستور اسکن (کلید S)                                        |
+//+------------------------------------------------------------------+
+void HandleScanCommand()
+{
+   if(!Inp_EnableScanner)
+   {
+      g_Logger.Warning("اسکنر غیرفعال است.");
       return;
-
    }
 
-
-
-
-
-   if(ReplaceEngine.Replace(Current))
+   g_IsProcessing = true;
+   
+   int count = g_ObjectMgr.ScanAndSaveStandardPitchforks();
+   
+   if(count > 0)
    {
-
-
-      PitchforkManager.Set(Current);
-
-
-      Print("Replace Completed");
-
-
+      g_Logger.Info("تعداد " + IntegerToString(count) + " پیچ‌فورک جدید شناسایی و ذخیره شد.");
+      g_Manager.RenderAllActive();
    }
    else
    {
-
-      Print("Replace Failed");
-
+      g_Logger.Info("هیچ پیچ‌فورک استانداردی برای تبدیل یافت نشد.");
    }
-
-
-
+   
+   g_IsProcessing = false;
 }
 
 
-
+//+------------------------------------------------------------------+
+//| هندلر دستور جایگزینی (کلید R)                                    |
+//+------------------------------------------------------------------+
+void HandleReplaceCommand()
+{
+   g_IsProcessing = true;
+   
+   int replacedCount = g_Manager.ForceReplaceAllStandard();
+   
+   if(replacedCount > 0)
+   {
+      g_Logger.Info("تعداد " + IntegerToString(replacedCount) + " پیچ‌فورک جایگزین شد.");
+      g_Manager.RenderAllActive();
+   }
+   else
+   {
+      g_Logger.Info("هیچ پیچ‌فورکی برای جایگزینی فوری یافت نشد.");
+   }
+   
+   g_IsProcessing = false;
 }
+
+
+//+------------------------------------------------------------------+
+//| استخراج ID از نام شیء                                            |
+//+------------------------------------------------------------------+
+bool ExtractIDFromObjectName(const string objName, string &outID)
+{
+   // فرمت نام: PFP_{ID}_L{LineIndex}
+   int start = StringFind(objName, "_");
+   if(start == -1) return false;
+   
+   int end = StringFind(objName, "_", start + 1);
+   if(end == -1) return false;
+   
+   outID = StringSubstr(objName, start + 1, end - start - 1);
+   return !StringIsEmpty(outID);
+}
+
+//+------------------------------------------------------------------+
