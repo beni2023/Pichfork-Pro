@@ -151,6 +151,31 @@ bool Load(CPFP_MultiManager &manager)
    return (loaded > 0);
 }
 
+//--------------------------------------------------
+// Clear all stored data
+//--------------------------------------------------
+void ClearAll()
+{
+   string filePath = GetFilePath();
+   
+   // Delete the file if it exists
+   if(FileIsExists(PFP_MULTI_STORAGE_FILE))
+   {
+      if(FileDelete(PFP_MULTI_STORAGE_FILE))
+      {
+         Print("MultiStorage : Cleared all data");
+      }
+      else
+      {
+         Print("MultiStorage : Failed to delete file, error = ", GetLastError());
+      }
+   }
+   else
+   {
+      Print("MultiStorage : No data file to clear");
+   }
+}
+
 };
 
 #endif

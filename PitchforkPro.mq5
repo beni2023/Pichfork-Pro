@@ -22,9 +22,11 @@
 #include "Core/PFP_Renderer.mqh"
 #include "Core/PFP_MultiStorage.mqh"
 #include "Core/PFP_ReplaceEngine.mqh"
-#include "Core/PFP_Manager.mqh"
 #include "Core/PFP_MultiManager.mqh"
 #include "Core/PFP_TypeDetector.mqh"
+#include "Core/PFP_Dashboard.mqh"
+
+#include "Utils/PFP_GUI.mqh"
 
 
 //--- ورودی‌های کاربر
@@ -32,6 +34,7 @@ input group "تنظیمات کلیدی"
 input bool   Inp_EnableScanner    = true;           // فعال‌سازی اسکنر خودکار
 input string Inp_ScanKey          = "S";            // کلید اسکن و ذخیره (پیش‌فرض: S)
 input string Inp_ReplaceKey       = "R";            // کلید جایگزینی (پیش‌فرض: R)
+input string Inp_GUIKey           = "G";            // کلید نمایش/مخفی کردن پنل GUI (پیش‌فرض: G)
 
 input group "تنظیمات ظاهری"
 input color  Inp_ColorMain        = clrDodgerBlue;  // رنگ خطوط اصلی
@@ -39,6 +42,7 @@ input color  Inp_ColorMedian      = clrYellow;      // رنگ خط میانی
 input color  Inp_ColorWarning     = clrOrangeRed;   // رنگ خطوط اخطار/کمکی
 input int    Inp_WidthMain        = 2;              // ضخامت خطوط اصلی
 input int    Inp_WidthMedian      = 1;              // ضخامت خط میانی
+input ENUM_PFP_THEME Inp_GUITheme = THEME_DARK;     // تم رابط کاربری گرافیکی
 
 input group "تنظیمات سیستم"
 input bool   Inp_ShowLogs         = true;           // نمایش لاگ‌ها در کنسول
@@ -52,6 +56,8 @@ CPFP_ObjectManager *g_ObjectMgr = NULL;
 CPFP_TypeDetector  *g_TypeDetector = NULL;
 CPFP_Renderer      *g_Renderer = NULL;
 CPFP_GeometryEngine *g_Geometry = NULL;
+PFP_GUI            *g_GUI = NULL;          // مدیر رابط کاربری گرافیکی
+CPFP_Dashboard     *g_Dashboard = NULL;    // داشبورد حرفه‌ای
 
 //--- وضعیت‌های سیستم
 bool g_IsProcessing = false;          // قفل پردازش برای جلوگیری از تداخل
@@ -144,6 +150,47 @@ int OnInit()
    }
    
    g_ObjectMgr.SetEngines(g_Renderer, g_Geometry);
+   
+   //--- تنظیم ObjectManager در MultiManager
+   g_Manager.SetObjectManager(g_ObjectMgr);
+
+   //--- ایجاد رابط کاربری گرافیکی (GUI)
+   g_GUI = new PFP_GUI(g_Manager);
+   if(g_GUI == NULL)
+   {
+      g_Logger.Error("خطا در ایجاد GUI");
+      delete g_Manager;
+      delete g_ObjectMgr;
+      delete g_Renderer;
+      delete g_Geometry;
+      delete g_TypeDetector;
+      delete g_Logger;
+      return INIT_FAILED;
+   }
+   
+   //--- اعمال تم انتخاب شده و راه‌اندازی اولیه GUI
+   g_GUI->SetTheme(Inp_GUITheme);
+   if(!g_GUI->Initialize())
+   {
+      g_Logger.Warning("راه‌اندازی اولیه GUI با مشکل مواجه شد، اما ادامه می‌دهیم.");
+   }
+   else
+   {
+      g_Logger.Info("رابط کاربری گرافیکی با موفقیت راه‌اندازی شد.");
+   }
+
+   //--- ایجاد داشبورد حرفه‌ای
+   g_Dashboard = new CPFP_Dashboard(0, g_Logger);
+   if(g_Dashboard == NULL)
+   {
+      g_Logger.Error("خطا در ایجاد Dashboard");
+      // ادامه می‌دهیم چون داشبورد حیاتی نیست
+   }
+   else
+   {
+      g_Dashboard.Create();
+      g_Logger.Info("داشبورد حرفه‌ای با موفقیت ایجاد شد.");
+   }
 
    //--- بارگذاری داده‌های ذخیره شده
    if(!g_Manager.LoadAll())
@@ -170,6 +217,19 @@ void OnDeinit(const int reason)
 {
    if(g_Logger != NULL)
       g_Logger.Info("خاموش کردن اندیکاتور. دلیل: " + IntegerToString(reason));
+   
+   //--- مخفی کردن و پاکسازی داشبورد
+   if(g_Dashboard != NULL)
+   {
+      delete g_Dashboard;
+   }
+   
+   //--- مخفی کردن و پاکسازی GUI
+   if(g_GUI != NULL)
+   {
+      g_GUI->Hide();
+      delete g_GUI;
+   }
    
    //--- ذخیره داده‌ها قبل از خروج
    if(g_Manager != NULL)
@@ -233,6 +293,14 @@ int OnCalculate(const int rates_total,
    {
       g_Manager.RenderAllActive();
    }
+   
+   //--- بروزرسانی داشبورد
+   if(g_Dashboard != NULL && g_Manager != NULL)
+   {
+      int count = g_Manager.GetCount();
+      bool storage_ok = true; // فرض بر سالم بودن
+      g_Dashboard.Update(count, true);
+   }
 
    //--- پردازش رویدادهای صف
    ProcessEventQueue();
@@ -250,6 +318,56 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
 {
+   //--- پردازش رویدادهای داشبورد
+   if(g_Dashboard != NULL && id == CHARTEVENT_MOUSE_MOVE)
+   {
+      int x = (int)lparam;
+      int y = (int)dparam;
+      if(g_Dashboard->CheckHover(x, y))
+      {
+         ChartRedraw(); // رسم مجدد برای افکت‌های Hover
+      }
+   }
+   
+   //--- پردازش کلیک روی دکمه‌های داشبورد
+   if(g_Dashboard != NULL && id == CHARTEVENT_OBJECT_CLICK)
+   {
+      string objName = sparam;
+      
+      // بررسی اینکه آیا کلیک مربوط به دکمه‌های داشبورد است
+      if(StringFind(objName, "PFP_Dash_") == 0)
+      {
+         if(g_Dashboard->ProcessClick(objName))
+         {
+            // اگر کلیک روی دکمه اسکن بود
+            if(StringFind(objName, "ScanBtn") > 0)
+            {
+               g_Logger.Info("دستور اسکن از داشبورد دریافت شد");
+               HandleScanCommand();
+            }
+            // اگر کلیک روی دکمه حذف همه بود
+            else if(StringFind(objName, "ClearBtn") > 0)
+            {
+               g_Logger.Info("دستور حذف همه از داشبورد دریافت شد");
+               if(g_Manager != NULL)
+               {
+                  g_Manager.RemoveAll();
+                  g_SelectedPitchforkID = "";
+                  Comment("");
+               }
+            }
+            // اگر کلیک روی دکمه Toggle بود (باز/بسته کردن) - توسط خود Dashboard پردازش شده
+            ChartRedraw();
+         }
+      }
+   }
+   
+   //--- ارسال رویداد به GUI برای پردازش
+   if(g_GUI != NULL && g_GUI->IsVisible())
+   {
+      g_GUI->OnChartEvent(id, lparam, dparam, sparam);
+   }
+   
    //--- افزودن رویداد به صف برای پردازش ناهمگام
    if(g_EventQueueSize < 100)
    {
@@ -265,6 +383,20 @@ void OnChartEvent(const int id,
    if(id == CHARTEVENT_KEYDOWN)
    {
       string key = StringSubstr(sparam, 0, 1);
+      
+      //--- کلید نمایش/مخفی کردن GUI (G)
+      if(StringToUpper(key) == StringToUpper(Inp_GUIKey))
+      {
+         g_Logger.Info("دستور نمایش/مخفی کردن GUI دریافت شد (کلید: " + Inp_GUIKey + ")");
+         if(g_GUI != NULL)
+         {
+            g_GUI->Toggle();
+            if(g_GUI->IsVisible())
+            {
+               g_GUI->Refresh();
+            }
+         }
+      }
       
       //--- کلید اسکن (S)
       if(StringToUpper(key) == StringToUpper(Inp_ScanKey))
@@ -289,6 +421,11 @@ void OnChartEvent(const int id,
             g_Manager.RemovePitchfork(g_SelectedPitchforkID);
             g_SelectedPitchforkID = "";
             Comment("");
+            // بروزرسانی GUI پس از حذف
+            if(g_GUI != NULL && g_GUI->IsVisible())
+            {
+               g_GUI->Refresh();
+            }
          }
       }
    }
@@ -371,9 +508,25 @@ void HandleScanCommand()
 
    g_IsProcessing = true;
    
-   // Scan logic would be implemented here
-   // For now, just render existing pitchforks
-   g_Manager.RenderAllActive();
+   // اسکن و ذخیره تمام پیچ‌فورک‌های موجود در چارت
+   if(g_Manager != NULL)
+   {
+      g_Manager.ScanAndStoreAll();
+      g_Manager.RenderAllActive();
+      
+      // بروزرسانی GUI اگر فعال است
+      if(g_GUI != NULL && g_GUI->IsVisible())
+      {
+         g_GUI->Refresh();
+      }
+      
+      // بروزرسانی داشبورد
+      if(g_Dashboard != NULL)
+      {
+         int count = g_Manager.GetCount();
+         g_Dashboard.Update(count, true);
+      }
+   }
    
    g_Logger.Info("اسکن انجام شد.");
    
@@ -388,7 +541,26 @@ void HandleReplaceCommand()
 {
    g_IsProcessing = true;
    
-   // Replace logic would be implemented here
+   // جایگزینی تمام پیچ‌فورک‌های استاندارد با نسخه پیشرفته
+   if(g_Manager != NULL)
+   {
+      g_Manager.ReplaceAllPitchforks();
+      g_Manager.RenderAllActive();
+      
+      // بروزرسانی GUI اگر فعال است
+      if(g_GUI != NULL && g_GUI->IsVisible())
+      {
+         g_GUI->Refresh();
+      }
+      
+      // بروزرسانی داشبورد
+      if(g_Dashboard != NULL)
+      {
+         int count = g_Manager.GetCount();
+         g_Dashboard.Update(count, true);
+      }
+   }
+   
    g_Logger.Info("جایگزینی انجام شد.");
    
    g_IsProcessing = false;

@@ -5,6 +5,8 @@
 #include "PFP_Renderer.mqh"
 #include "PFP_GeometryEngine.mqh"
 #include "PFP_MultiStorage.mqh"
+#include "PFP_ObjectManager.mqh"
+#include "PFP_ReplaceEngine.mqh"
 #include "../Utils/PFP_Logger.mqh"
 
 #define PFP_MAX_PITCHFORKS 100
@@ -21,6 +23,7 @@ private:
    CPFP_Renderer *m_renderer;
    CPFP_GeometryEngine *m_geometry;
    CPFP_MultiStorage *m_storage;
+   CPFP_ObjectManager *m_objManager;
 
 public:
 
@@ -52,6 +55,13 @@ public:
    }
 
    //--------------------------------------------------
+   
+   void SetObjectManager(CPFP_ObjectManager *objManager)
+   {
+      m_objManager = objManager;
+   }
+
+   //--------------------------------------------------
 
    void Clear()
    {
@@ -64,6 +74,13 @@ public:
    //--------------------------------------------------
 
    int Count() const
+   {
+      return m_count;
+   }
+   
+   //--------------------------------------------------
+   
+   int GetCount() const
    {
       return m_count;
    }
@@ -119,6 +136,15 @@ public:
       if(m_logger != NULL)
          m_logger.Warning("MultiManager : Pitchfork not found " + id);
       return false;
+   }
+   
+   //--------------------------------------------------
+   // Alias for Remove() to match API expectations
+   //--------------------------------------------------
+   
+   bool RemovePitchfork(string id)
+   {
+      return Remove(id);
    }
 
    //--------------------------------------------------
@@ -228,9 +254,150 @@ public:
    
    int ForceReplaceAllStandard()
    {
-      // This would need integration with ReplaceEngine
-      // For now, return 0 as placeholder
-      return 0;
+      if(m_objManager == NULL)
+         return 0;
+         
+      int replaced = 0;
+      CPFP_ReplaceEngine replacer;
+      replacer.SetEngines(*m_geometry, *m_renderer, *m_objManager);
+      
+      // Keep trying to find and replace original pitchforks
+      while(true)
+      {
+         CPFP_Pitchfork pf;
+         if(replacer.Replace(pf))
+         {
+            Add(pf);
+            replaced++;
+         }
+         else
+            break;
+      }
+      
+      return replaced;
+   }
+
+   //--------------------------------------------------
+   // Scan and store all pitchforks on chart
+   //--------------------------------------------------
+   
+   void ScanAndStoreAll()
+   {
+      if(m_objManager == NULL || m_typeDetector == NULL)
+      {
+         if(m_logger != NULL)
+            m_logger.Error("MultiManager: Cannot scan - missing dependencies");
+         return;
+      }
+      
+      m_logger.Info("MultiManager: Starting full chart scan...");
+      
+      // Use ObjectScanner to find all pitchfork objects
+      CPFP_ObjectScanner scanner;
+      scanner.SetLogger(m_logger);
+      
+      string foundIDs[];
+      int count = scanner.ScanAllPitchforks(foundIDs);
+      
+      if(count == 0)
+      {
+         m_logger.Info("MultiManager: No pitchforks found on chart");
+         return;
+      }
+      
+      m_logger.Info("MultiManager: Found " + IntegerToString(count) + " pitchfork candidates");
+      
+      // Process each found pitchfork
+      for(int i = 0; i < count && m_count < PFP_MAX_PITCHFORKS; i++)
+      {
+         string pfID = foundIDs[i];
+         
+         // Check if already exists
+         bool exists = false;
+         for(int j = 0; j < m_count; j++)
+         {
+            if(m_pitchforks[j].ID() == pfID)
+            {
+               exists = true;
+               break;
+            }
+         }
+         
+         if(exists) continue;
+         
+         // Read pitchfork data from chart objects
+         CPFP_PitchforkReader reader;
+         CPFP_Pitchfork pf;
+         
+         if(reader.ReadFromChart(pfID, pf))
+         {
+            // Detect type if not already set
+            if(pf.Type() == ENUM_PFP_TYPE_UNKNOWN)
+            {
+               ENUM_PFP_TYPE detectedType = m_typeDetector.Detect(pf);
+               pf.SetType(detectedType);
+            }
+            
+            // Set as active and add to list
+            pf.SetActive(true);
+            Add(pf);
+            
+            m_logger.Debug("MultiManager: Stored pitchfork " + pfID);
+         }
+      }
+      
+      m_logger.Info("MultiManager: Scan complete. Total stored: " + IntegerToString(m_count));
+   }
+
+   //--------------------------------------------------
+   // Replace all standard MT5 pitchforks
+   //--------------------------------------------------
+   
+   void ReplaceAllPitchforks()
+   {
+      m_logger.Info("MultiManager: Starting replacement of all standard pitchforks...");
+      
+      int replaced = ForceReplaceAllStandard();
+      
+      m_logger.Info("MultiManager: Replaced " + IntegerToString(replaced) + " standard pitchforks");
+   }
+
+   //--------------------------------------------------
+   // Get total pitchforks count (alias for Count)
+   //--------------------------------------------------
+   
+   int TotalPitchforks() const
+   {
+      return m_count;
+   }
+   
+   //--------------------------------------------------
+   // Remove all pitchforks
+   //--------------------------------------------------
+   
+   void RemoveAll()
+   {
+      m_logger.Info("MultiManager: Removing all " + IntegerToString(m_count) + " pitchforks");
+      
+      // Delete all chart objects
+      if(m_objManager != NULL)
+      {
+         for(int i = 0; i < m_count; i++)
+         {
+            m_objManager.DeletePitchforkObjects(m_pitchforks[i].GetID());
+         }
+      }
+      
+      // Clear storage
+      if(m_storage != NULL)
+      {
+         m_storage->ClearAll();
+      }
+      
+      // Reset count
+      Clear();
+      
+      m_logger.Info("MultiManager: All pitchforks removed");
    }
 
 };
