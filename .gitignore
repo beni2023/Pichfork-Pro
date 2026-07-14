@@ -1,19 +1,45 @@
 ```
-# Compiled/Binary files
-*.mqe
+# Compiled and binary files
+*.mqh
+*.mq4
+*.mq5
+*.ex4
 *.ex5
 *.fxt
 *.gsc
 *.hst
-*.csv
-*.log
+*.hcc
+*.scx
+*.set
+*.tpl
+*.ex
+*.os
+*.dll
+*.so
+*.dylib
 
-# Dependencies and build artifacts
-MQL5/Libraries/
-MQL5/Cache/
-MQL5/Terminal64.exe.stackdump
+# Build and cache directories
+MQL4/Files/
+MQL4/Logs/
+MQL4/Tester/
+MQL5/Files/
+MQL5/Logs/
+MQL5/Tester/
 
-# Editor/IDE files
+# Dependencies and virtual environments
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.egg-info/
+.Python
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage/
+htmlcov/
+
+# Editors and IDEs
 .vscode/
 .idea/
 *.swp
@@ -23,7 +49,34 @@ MQL5/Terminal64.exe.stackdump
 # System files
 .DS_Store
 Thumbs.db
+.env
+.env.local
+*.env.*
 
 # Logs
 *.log
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```
