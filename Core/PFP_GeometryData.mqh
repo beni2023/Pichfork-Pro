@@ -1,214 +1,100 @@
-#ifndef PFP_GEOMETRYDATA_MQH
-#define PFP_GEOMETRYDATA_MQH
+//+------------------------------------------------------------------+
+//|                                              PFP_GeometryData.mqh |
+//|                                  Copyright 2024, PitchforkPro Dev |
+//|                                             https://pitchforkpro.io |
+//+------------------------------------------------------------------+
+#property copyright "2024, PitchforkPro Dev"
+#property link      "https://pitchforkpro.io"
+#property version   "1.00"
+#property strict
 
+#ifndef PFP_GEOMETRY_DATA_MQH
+#define PFP_GEOMETRY_DATA_MQH
 
+#include "../Utils/PFP_Constants.mqh"
 
-class CPFP_GeometryData
+//+------------------------------------------------------------------+
+//| ساختار داده‌های یک نقطه (Anchor)                                   |
+//+------------------------------------------------------------------+
+struct S_PFP_Point
 {
-
-
-public:
-
-
-
-   //----------------------------------
-   // Median Line
-   //----------------------------------
-
-   datetime MedianTime1;
-   datetime MedianTime2;
-
-   double MedianPrice1;
-   double MedianPrice2;
-
-
-
-
-
-   //----------------------------------
-   // Upper Parallel
-   //----------------------------------
-
-   datetime UpperTime1;
-   datetime UpperTime2;
-
-   double UpperPrice1;
-   double UpperPrice2;
-
-
-
-
-
-   //----------------------------------
-   // Lower Parallel
-   //----------------------------------
-
-   datetime LowerTime1;
-   datetime LowerTime2;
-
-   double LowerPrice1;
-   double LowerPrice2;
-
-
-
-
-
-   //----------------------------------
-   // Mid Upper
-   //----------------------------------
-
-   datetime MidUpperTime1;
-   datetime MidUpperTime2;
-
-   double MidUpperPrice1;
-   double MidUpperPrice2;
-
-
-
-
-
-   //----------------------------------
-   // Mid Lower
-   //----------------------------------
-
-   datetime MidLowerTime1;
-   datetime MidLowerTime2;
-
-   double MidLowerPrice1;
-   double MidLowerPrice2;
-
-
-
-
-
-
-//==================================================
-// Constructor
-//==================================================
-
-CPFP_GeometryData()
-{
-
-   Reset();
-
-}
-
-
-
-
-
-
-//==================================================
-// Reset
-//==================================================
-
-void Reset()
-{
-
-
-   MedianTime1=0;
-   MedianTime2=0;
-
-
-   MedianPrice1=0;
-   MedianPrice2=0;
-
-
-
-
-
-   UpperTime1=0;
-   UpperTime2=0;
-
-
-   UpperPrice1=0;
-   UpperPrice2=0;
-
-
-
-
-
-
-   LowerTime1=0;
-   LowerTime2=0;
-
-
-   LowerPrice1=0;
-   LowerPrice2=0;
-
-
-
-
-
-
-
-   MidUpperTime1=0;
-   MidUpperTime2=0;
-
-
-   MidUpperPrice1=0;
-   MidUpperPrice2=0;
-
-
-
-
-
-
-
-   MidLowerTime1=0;
-   MidLowerTime2=0;
-
-
-   MidLowerPrice1=0;
-   MidLowerPrice2=0;
-
-
-
-}
-
-
-
-
-
-
-//==================================================
-// Validation
-//==================================================
-
-bool Valid()
-{
-
-
-   if(MedianTime1<=0 ||
-      MedianTime2<=0)
-      return(false);
-
-
-
-
-   if(UpperTime1<=0 ||
-      UpperTime2<=0)
-      return(false);
-
-
-
-
-   if(LowerTime1<=0 ||
-      LowerTime2<=0)
-      return(false);
-
-
-
-
-   return(true);
-
-}
-
-
-
-
+   datetime Time;
+   double   Price;
+   
+   S_PFP_Point() : Time(0), Price(0.0) {}
+   S_PFP_Point(datetime t, double p) : Time(t), Price(p) {}
 };
 
+//+------------------------------------------------------------------+
+//| ساختار داده‌های هندسی کامل یک Pitchfork                           |
+//+------------------------------------------------------------------+
+struct S_PFP_Geometry
+{
+   ulong      ID;              // شناسه یکتا
+   int        Type;            // نوع پیچ‌فورک (Standard, Schiff, ...)
+   int        Direction;       // جهت (Bullish/Bearish)
+   S_PFP_Point P1;             // نقطه شروع (پیوت اصلی)
+   S_PFP_Point P2;             // نقطه میانی اول
+   S_PFP_Point P3;             // نقطه میانی دوم
+   
+   // نقاط محاسبه شده (میانه‌ها و خطوط موازی)
+   datetime   MedianTimeStart;
+   double     MedianPriceStart;
+   datetime   MedianTimeEnd;
+   double     MedianPriceEnd;
+   
+   datetime   UpperTimeStart;
+   double     UpperPriceStart;
+   datetime   UpperTimeEnd;
+   double     UpperPriceEnd;
+   
+   datetime   LowerTimeStart;
+   double     LowerPriceStart;
+   datetime   LowerTimeEnd;
+   double     LowerPriceEnd;
+   
+   // خطوط میانی اضافی
+   datetime   MidUpperTimeStart;
+   double     MidUpperPriceStart;
+   datetime   MidUpperTimeEnd;
+   double     MidUpperPriceEnd;
+   
+   datetime   MidLowerTimeStart;
+   double     MidLowerPriceStart;
+   datetime   MidLowerTimeEnd;
+   double     MidLowerPriceEnd;
 
+   S_PFP_Geometry() 
+   {
+      ID = 0;
+      Type = PFP_TYPE_STANDARD;
+      Direction = PFP_BULLISH;
+      Reset();
+   }
+   
+   void Reset()
+   {
+      P1.Time = 0; P1.Price = 0;
+      P2.Time = 0; P2.Price = 0;
+      P3.Time = 0; P3.Price = 0;
+      
+      MedianTimeStart = 0; MedianPriceStart = 0;
+      MedianTimeEnd = 0; MedianPriceEnd = 0;
+      UpperTimeStart = 0; UpperPriceStart = 0;
+      UpperTimeEnd = 0; UpperPriceEnd = 0;
+      LowerTimeStart = 0; LowerPriceStart = 0;
+      LowerTimeEnd = 0; LowerPriceEnd = 0;
+      MidUpperTimeStart = 0; MidUpperPriceStart = 0;
+      MidUpperTimeEnd = 0; MidUpperPriceEnd = 0;
+      MidLowerTimeStart = 0; MidLowerPriceStart = 0;
+      MidLowerTimeEnd = 0; MidLowerPriceEnd = 0;
+   }
+   
+   bool IsValid() const
+   {
+      return (P1.Time != 0 && P2.Time != 0 && P3.Time != 0 &&
+              P1.Price != 0 && P2.Price != 0 && P3.Price != 0);
+   }
+};
 
-#endif
+#endif // PFP_GEOMETRY_DATA_MQH

@@ -1,35 +1,82 @@
 ```
-# Compiled/Binary files
+# Compiled and binary files
 *.mqh
+*.mq4
 *.mq5
-
-# MetaQuotes specific
+*.ex4
 *.ex5
 *.fxt
+*.gsc
 *.hst
+*.hcc
+*.scx
 *.set
-*.log
-
-# Dependencies
-include/
-
-# Build artifacts
+*.tpl
+*.ex
+*.os
 *.dll
 *.so
-*.a
-*.lib
+*.dylib
 
-# Editor/IDE
+# Build and cache directories
+MQL4/Files/
+MQL4/Logs/
+MQL4/Tester/
+MQL5/Files/
+MQL5/Logs/
+MQL5/Tester/
+
+# Dependencies and virtual environments
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.egg-info/
+.Python
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage/
+htmlcov/
+
+# Editors and IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
 *.tmp
 
+# System files
+.DS_Store
+Thumbs.db
+.env
+.env.local
+*.env.*
+
 # Logs
 *.log
 
-# System
-.DS_Store
-Thumbs.db
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```
