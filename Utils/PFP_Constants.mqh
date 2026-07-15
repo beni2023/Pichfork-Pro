@@ -7,6 +7,8 @@
 // Pitchfork Types
 //==================================================
 
+#define PFP_MAX_PITCHFORKS 100
+
 enum ENUM_PFP_TYPE
 {
    PFP_STANDARD = 0,

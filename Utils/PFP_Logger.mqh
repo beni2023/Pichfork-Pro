@@ -133,7 +133,7 @@ private:
    void LogMessage(const string level, const string msg)
    {
       if(!m_ShowLogs)
-         return "";
+         return;
       
       m_MessageCount++;
       string timestamp = TimeToString(TimeCurrent(), TIME_SECONDS);
