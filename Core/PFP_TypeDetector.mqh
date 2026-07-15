@@ -7,25 +7,21 @@
 #property link      "https://pitchforkpro.com"
 #property version   "1.0.0"
 //+------------------------------------------------------------------+
-#include "PFP_Logger.mqh"
+#include "../Utils/PFP_Logger.mqh"
+#include "../Utils/PFP_Constants.mqh"
 #include "PFP_GeometryData.mqh"
 //+------------------------------------------------------------------+
 //| انواع Pitchfork                                                   |
 //+------------------------------------------------------------------+
-enum ENUM_PFP_PITCHFORK_TYPE
-{
-   PFP_STANDARD,        // چنگال اندروز استاندارد
-   PFP_SCHIFF,          // چنگال شیف
-   PFP_MODIFIED_SCHIFF, // چنگال شیف اصلاح‌شده
-   PFP_UNKNOWN          // نامشخص
-};
+// Use ENUM_PFP_TYPE from constants instead of redefining
+//+------------------------------------------------------------------+
 
 //+------------------------------------------------------------------+
 //| ساختار نتیجه تشخیص                                                |
 //+------------------------------------------------------------------+
 struct SPFP_TypeResult
 {
-   ENUM_PFP_PITCHFORK_TYPE type;
+   ENUM_PFP_TYPE type;           // Use ENUM_PFP_TYPE from constants
    double confidence;      // ضریب اطمینان (0.0 تا 1.0)
    string description;     // توضیحات
 };
