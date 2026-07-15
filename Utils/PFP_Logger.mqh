@@ -114,7 +114,7 @@ public:
    }
    
    //--- لاگ با فرمت سفارشی
-   string Format(ENUM_PFP_LOG_LEVEL level, const string format, ...)
+   string Format(ENUM_PFP_LOG_LEVEL level, const string format)
    {
       if(level < m_LogLevel || !m_ShowLogs)
          return "";
@@ -123,7 +123,6 @@ public:
       
       // برای سادگی، فعلاً از فرمت‌بندی پیچیده صرف نظر می‌کنیم
       // در صورت نیاز می‌توان StringFormat اضافه کرد
-      
       LogMessage(EnumToString(level), msg);
       return msg;
    }

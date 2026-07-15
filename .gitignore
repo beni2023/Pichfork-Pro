@@ -1,27 +1,26 @@
 ```
-# Compiled files
-*.mqh
-*.mq5
-
-# Build artifacts
-*.ex5
+# Compiled and build artifacts
+*.mqh~
 *.ex4
+*.ex5
+*.os
+*.o
+*.obj
+*.out
+*.dll
+*.so
+*.a
 
 # Dependencies
 lib/
-include/
+Libraries/
 
-# Logs
+# Logs and temp files
 *.log
-
-# Temporary files
 *.tmp
-*.temp
-
-# Environment
-.env
-.env.local
-*.env.*
+*.swp
+*.bak
+*.~*
 
 # Editors
 .vscode/
@@ -29,12 +28,11 @@ include/
 *.swp
 *.swo
 
-# Coverage and testing
-coverage/
-htmlcov/
-.coverage
-
-# OS specific
-.DS_Store
-Thumbs.db
+# MetaTrader specific
+tester/
+logs/
+*.hst
+*.fxt
+*.csv
+*.report
 ```
