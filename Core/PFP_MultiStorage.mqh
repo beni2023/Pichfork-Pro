@@ -15,7 +15,7 @@ private:
    // Get full file path
    string GetFilePath()
    {
-      return MQL5InfoString(MQL5_DATA_PATH) + "\\MQL5\\Files\\" + PFP_MULTI_STORAGE_FILE;
+      return TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL5\\Files\\" + PFP_MULTI_STORAGE_FILE;
    }
    
 public:
@@ -159,7 +159,7 @@ void ClearAll()
    string filePath = GetFilePath();
    
    // Delete the file if it exists
-   if(FileIsExists(PFP_MULTI_STORAGE_FILE))
+   if(FileOpen(PFP_MULTI_STORAGE_FILE, FILE_READ | FILE_BIN) != INVALID_HANDLE || FileIsExist(PFP_MULTI_STORAGE_FILE))
    {
       if(FileDelete(PFP_MULTI_STORAGE_FILE))
       {
