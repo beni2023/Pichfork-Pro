@@ -4,28 +4,24 @@
 *.mq5
 
 # Build artifacts
-*.ex4
 *.ex5
-*.fxt
-*.hst
-*.csv
-
-# MetaTrader specific
-tester/
-history/
-logs/
-*.log
-*.txt
+*.ex4
 
 # Dependencies
-Libraries/
-MQL4/Libraries/
-MQL5/Libraries/
+lib/
+include/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Editors
 .vscode/
@@ -33,20 +29,12 @@ MQL5/Libraries/
 *.swp
 *.swo
 
-# Temp files
-*.tmp
-Thumbs.db
-.DS_Store
-
 # Coverage and testing
-.coverage
 coverage/
 htmlcov/
-*.pyc
-__pycache__/
-*.class
-target/
-node_modules/
-dist/
-build/
+.coverage
+
+# OS specific
+.DS_Store
+Thumbs.db
 ```
