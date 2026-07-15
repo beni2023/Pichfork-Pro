@@ -14,7 +14,8 @@ enum ENUM_PFP_TYPE
    PFP_STANDARD = 0,
    PFP_SCHIFF = 1,
    PFP_MODIFIED_SCHIFF = 2,
-   PFP_UNKNOWN = 3
+   PFP_UNKNOWN = 3,
+   ENUM_PFP_TYPE_UNKNOWN = 3  // alias for compatibility
 };
 
 

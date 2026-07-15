@@ -63,8 +63,8 @@ private:
       if(cosAngle > 1.0) cosAngle = 1.0;
       if(cosAngle < -1.0) cosAngle = -1.0;
       
-      // تبدیل به درجه
-      return MathAcosh(cosAngle) * (180.0 / M_PI);
+      // تبدیل به درجه - استفاده از MathAcos بجای MathAcosh
+      return MathAcos(cosAngle) * (180.0 / M_PI);
    }
    
    // محاسبه نسبت طول‌ها

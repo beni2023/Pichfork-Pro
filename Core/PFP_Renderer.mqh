@@ -301,9 +301,9 @@ void DrawTrendLine(
    
    if(cur_time1 != t1 || cur_price1 != p1 || cur_time2 != t2 || cur_price2 != p2)
    {
-      ObjectSetInteger(0, name, OBJPROP_TIME, 0, t1);
+      ObjectSetInteger(0, name, OBJPROP_TIME, 0, (long)t1);
       ObjectSetInteger(0, name, OBJPROP_PRICE, 0, p1);
-      ObjectSetInteger(0, name, OBJPROP_TIME, 1, t2);
+      ObjectSetInteger(0, name, OBJPROP_TIME, 1, (long)t2);
       ObjectSetInteger(0, name, OBJPROP_PRICE, 1, p2);
    }
 }
