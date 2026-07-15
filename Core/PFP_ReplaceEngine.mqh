@@ -82,7 +82,7 @@ public:
 
       // Generate unique ID
       string id = "PFP_REPL_" + TimeToString(TimeCurrent(), TIME_SECONDS);
-      id = StringReplace(id, ":", "_");
+      StringReplace(id, ":", "_");
       temp.SetID(id);
       temp.SetActive(true);
 
@@ -100,7 +100,7 @@ public:
          return false;
       }
 
-      CPFP_GeometryData geo;
+      S_PFP_Geometry geo;
       if(!m_geometry.Build(temp, geo))
       {
          Print("ReplaceEngine : Geometry Failed");
