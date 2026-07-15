@@ -107,7 +107,7 @@ public:
          return false;
       }
 
-      m_renderer.Draw(temp, geo);
+      m_renderer.Draw(temp, geo, RENDER_MODE_FULL);
       pf = temp;
 
       Print("ReplaceEngine : Completed, ID=", temp.ID());

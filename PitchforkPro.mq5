@@ -85,29 +85,29 @@ int OnInit()
 {
    //--- ایجاد نمونه لاگر
    ENUM_PFP_LOG_LEVEL logLevel = Inp_DeepDebug ? LOG_LEVEL_DEBUG : LOG_LEVEL_INFO;
-   g_Logger = new CPFP_Logger("PitchforkPro", Inp_ShowLogs, logLevel)
+   g_Logger = new CPFP_Logger("PitchforkPro", Inp_ShowLogs, logLevel);
    
    if(g_Logger == NULL)
    {
-      Print("خطای بحرانی: عدم امکان ایجاد Logger")
+      Print("خطای بحرانی: عدم امکان ایجاد Logger");
       return INIT_FAILED;
    }
    
-   g_Logger.Info("شروع راه‌اندازی PitchforkPro v1.0.1 Fixed")
+   g_Logger.Info("شروع راه‌اندازی PitchforkPro v1.0.1 Fixed");
 
    //--- بررسی دسترسی به چارت
-   if(!ChartGetInteger(0, CHART_MODE)
+   if(!ChartGetInteger(0, CHART_MODE));
    {
-      g_Logger.Error("خطا در دسترسی به چارت")
+      g_Logger.Error("خطا در دسترسی به چارت");
       delete g_Logger;
       return INIT_FAILED;
    }
 
    //--- ایجاد تشخیص‌دهنده نوع (TypeDetector)
-   g_TypeDetector = new CPFP_TypeDetector()
+   g_TypeDetector = new CPFP_TypeDetector();
    if(g_TypeDetector == NULL)
    {
-      g_Logger.Error("خطا در ایجاد TypeDetector")
+      g_Logger.Error("خطا در ایجاد TypeDetector");
       delete g_Logger;
       return INIT_FAILED;
    }

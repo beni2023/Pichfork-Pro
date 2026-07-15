@@ -7,9 +7,9 @@
 #include "PFP_MultiStorage.mqh"
 #include "PFP_ObjectManager.mqh"
 #include "PFP_ReplaceEngine.mqh"
+#include "PFP_TypeDetector.mqh"
 #include "../Utils/PFP_Logger.mqh"
-
-#define PFP_MAX_PITCHFORKS 100
+#include "../Utils/PFP_Constants.mqh"
 
 class CPFP_MultiManager
 {
@@ -23,14 +23,16 @@ private:
    CPFP_GeometryEngine *m_geometry;
    CPFP_MultiStorage *m_storage;
    CPFP_ObjectManager *m_objManager;
+   CPFP_TypeDetector *m_typeDetector;
 
 public:
 
    //--------------------------------------------------
 
-   CPFP_MultiManager(CPFP_Logger *logger)
+   CPFP_MultiManager(CPFP_Logger *logger, CPFP_TypeDetector *typeDetector)
    {
       m_logger = logger;
+      m_typeDetector = typeDetector;
       m_renderer = NULL;
       m_geometry = NULL;
       m_storage = new CPFP_MultiStorage();
@@ -189,7 +191,7 @@ public:
          return true;
       }
       
-      bool result = m_storage.Save(*this);
+      bool result = m_storage.Save(m_count);
       
       if(result && m_logger != NULL)
          m_logger.Info("MultiManager : Saved " + IntegerToString(m_count) + " pitchforks");
@@ -207,7 +209,9 @@ public:
          return false;
          
       Clear();
-      bool result = m_storage.Load(*this);
+      int loadedCount = 0;
+      bool result = m_storage.Load(loadedCount);
+      m_count = loadedCount;
       
       if(result && m_logger != NULL)
          m_logger.Info("MultiManager : Loaded " + IntegerToString(m_count) + " pitchforks");
@@ -236,7 +240,7 @@ public:
             CPFP_GeometryData geo;
             if(m_geometry.Build(m_pitchforks[i], geo))
             {
-               m_renderer.Draw(m_pitchforks[i], geo);
+               m_renderer.Draw(m_pitchforks[i], geo, RENDER_MODE_FULL);
                rendered++;
             }
          }
@@ -252,12 +256,12 @@ public:
    
    int ForceReplaceAllStandard()
    {
-      if(m_objManager == NULL)
+      if(m_objManager == NULL || m_geometry == NULL)
          return 0;
          
       int replaced = 0;
       CPFP_ReplaceEngine replacer;
-      replacer.SetEngines(*m_geometry, *m_renderer, *m_objManager);
+      replacer.SetEngines(m_geometry, m_renderer, m_objManager);
       
       // Keep trying to find and replace original pitchforks
       while(true)
