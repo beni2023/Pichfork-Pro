@@ -1,7 +1,8 @@
 #ifndef PFP_MULTISTORAGE_MQH
 #define PFP_MULTISTORAGE_MQH
 
-#include "PFP_MultiManager.mqh"
+#include "PFP_Pitchfork.mqh"
+#include "../Utils/PFP_Constants.mqh"
 
 #define PFP_MULTI_STORAGE_FILE "PFP_MultiData.bin"
 
@@ -21,9 +22,9 @@ private:
 public:
 
 //--------------------------------------------------
-bool Save(CPFP_MultiManager &manager)
+bool Save(int count)
 {
-   if(manager.Count() == 0)
+   if(count == 0)
    {
       Print("MultiStorage : Nothing to save");
       return true;
@@ -40,7 +41,6 @@ bool Save(CPFP_MultiManager &manager)
    // Write version for future compatibility
    FileWriteInteger(file, 1, INT_VALUE); // Version 1
    
-   int count = manager.Count();
    FileWriteInteger(file, count, INT_VALUE);
 
    int saved = 0;
@@ -48,7 +48,7 @@ bool Save(CPFP_MultiManager &manager)
    {
       CPFP_Pitchfork pf;
 
-      if(!manager.Get(i, pf))
+      if(!Get(i, pf))
          continue;
       
       if(!pf.Validate())
@@ -75,7 +75,7 @@ bool Save(CPFP_MultiManager &manager)
 }
 
 //--------------------------------------------------
-bool Load(CPFP_MultiManager &manager)
+bool Load(int &count)
 {
    int file = FileOpen(PFP_MULTI_STORAGE_FILE, FILE_READ | FILE_BIN);
 
@@ -85,7 +85,7 @@ bool Load(CPFP_MultiManager &manager)
       return false;
    }
 
-   manager.Clear();
+   Clear();
 
    // Read and verify version
    int version = FileReadInteger(file, INT_VALUE);
@@ -140,12 +140,14 @@ bool Load(CPFP_MultiManager &manager)
 
       if(pf.Validate())
       {
-         manager.Add(pf);
+         Add(pf);
          loaded++;
       }
    }
 
    FileClose(file);
+   
+   count = loaded;
 
    Print("MultiStorage : Loaded ", loaded, " pitchforks");
    return (loaded > 0);

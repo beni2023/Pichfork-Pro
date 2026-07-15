@@ -2,30 +2,30 @@
 # Compiled files
 *.mqh
 *.mq5
+
+# Build artifacts
 *.ex4
 *.ex5
 *.fxt
 *.hst
 *.csv
 
-# Build artifacts
-*.obj
-*.o
-*.a
-*.lib
-*.dll
-*.so
-*.dylib
+# MetaTrader specific
+tester/
+history/
+logs/
+*.log
+*.txt
 
 # Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-*.egg-info/
-build/
-dist/
-target/
+Libraries/
+MQL4/Libraries/
+MQL5/Libraries/
+
+# Environment
+.env
+.env.local
+.env.*
 
 # Editors
 .vscode/
@@ -33,26 +33,20 @@ target/
 *.swp
 *.swo
 
-# Logs
-*.log
-*.txt
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# OS
-.DS_Store
+# Temp files
+*.tmp
 Thumbs.db
+.DS_Store
 
-# Coverage
+# Coverage and testing
+.coverage
 coverage/
 htmlcov/
-.coverage
-
-# Caches
-.mypy_cache/
-.pytest_cache/
-.gradle/
+*.pyc
+__pycache__/
+*.class
+target/
+node_modules/
+dist/
+build/
 ```
