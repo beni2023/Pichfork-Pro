@@ -19,7 +19,54 @@ private:
       return TerminalInfoString(TERMINAL_DATA_PATH) + "\\MQL5\\Files\\" + PFP_MULTI_STORAGE_FILE;
    }
    
+   // Pitchfork storage for internal use
+   CPFP_Pitchfork m_pitchforks[PFP_MAX_PITCHFORKS];
+   int m_count;
+   
 public:
+
+   //--------------------------------------------------
+   // Constructor
+   //--------------------------------------------------
+   CPFP_MultiStorage()
+   {
+      m_count = 0;
+   }
+   
+   //--------------------------------------------------
+   // Clear all pitchforks from memory
+   //--------------------------------------------------
+   void Clear()
+   {
+      m_count = 0;
+      for(int i = 0; i < PFP_MAX_PITCHFORKS; i++)
+         m_pitchforks[i].Reset();
+   }
+   
+   //--------------------------------------------------
+   // Add a pitchfork to internal storage
+   //--------------------------------------------------
+   bool AddPitchfork(const CPFP_Pitchfork &pf)
+   {
+      if(m_count >= PFP_MAX_PITCHFORKS)
+         return false;
+         
+      m_pitchforks[m_count] = pf;
+      m_count++;
+      return true;
+   }
+   
+   //--------------------------------------------------
+   // Get a pitchfork from internal storage
+   //--------------------------------------------------
+   bool GetPitchfork(int index, CPFP_Pitchfork &pf)
+   {
+      if(index < 0 || index >= m_count)
+         return false;
+         
+      pf = m_pitchforks[index];
+      return true;
+   }
 
 //--------------------------------------------------
 bool Save(int count)
@@ -48,7 +95,7 @@ bool Save(int count)
    {
       CPFP_Pitchfork pf;
 
-      if(!Get(i, pf))
+      if(!GetPitchfork(i, pf))
          continue;
       
       if(!pf.Validate())
@@ -140,7 +187,7 @@ bool Load(int &count)
 
       if(pf.Validate())
       {
-         Add(pf);
+         AddPitchfork(pf);
          loaded++;
       }
    }

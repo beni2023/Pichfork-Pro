@@ -137,6 +137,14 @@ string ID()
 }
 
 
+string GetID()
+{
+
+   return m_id;
+
+}
+
+
 
 
 

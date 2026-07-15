@@ -96,7 +96,7 @@ int OnInit()
    g_Logger.Info("شروع راه‌اندازی PitchforkPro v1.0.1 Fixed");
 
    //--- بررسی دسترسی به چارت
-   if(!ChartGetInteger(0, CHART_MODE));
+   if(!ChartGetInteger(0, CHART_MODE))
    {
       g_Logger.Error("خطا در دسترسی به چارت");
       delete g_Logger;
@@ -113,22 +113,22 @@ int OnInit()
    }
 
    //--- ایجاد مدیر چندگانه (MultiManager)
-   g_Manager = new CPFP_MultiManager(g_Logger, g_TypeDetector)
+   g_Manager = new CPFP_MultiManager(g_Logger, g_TypeDetector);
    if(g_Manager == NULL)
    {
-      g_Logger.Error("خطا در ایجاد MultiManager")
+      g_Logger.Error("خطا در ایجاد MultiManager");
       delete g_TypeDetector;
       delete g_Logger;
       return INIT_FAILED;
    }
    
    //--- ایجاد Renderer و Geometry
-   g_Renderer = new CPFP_Renderer()
-   g_Geometry = new CPFP_GeometryEngine()
+   g_Renderer = new CPFP_Renderer();
+   g_Geometry = new CPFP_GeometryEngine();
    
    if(g_Renderer == NULL || g_Geometry == NULL)
    {
-      g_Logger.Error("خطا در ایجاد Renderer یا Geometry")
+      g_Logger.Error("خطا در ایجاد Renderer یا Geometry");
       delete g_Manager;
       delete g_TypeDetector;
       delete g_Logger;
@@ -136,29 +136,29 @@ int OnInit()
    }
    
    //--- تنظیم Engines در Manager و ObjectManager
-   g_Manager.SetEngines(g_Renderer, g_Geometry)
+   g_Manager.SetEngines(g_Renderer, g_Geometry);
 
    //--- ایجاد مدیر اشیاء (ObjectManager)
-   g_ObjectMgr = new CPFP_ObjectManager(g_Logger, g_Manager)
+   g_ObjectMgr = new CPFP_ObjectManager(g_Logger, g_Manager);
    if(g_ObjectMgr == NULL)
    {
-      g_Logger.Error("خطا در ایجاد ObjectManager")
+      g_Logger.Error("خطا در ایجاد ObjectManager");
       delete g_Manager;
       delete g_TypeDetector;
       delete g_Logger;
       return INIT_FAILED;
    }
    
-   g_ObjectMgr.SetEngines(g_Renderer, g_Geometry)
+   g_ObjectMgr.SetEngines(g_Renderer, g_Geometry);
    
    //--- تنظیم ObjectManager در MultiManager
-   g_Manager.SetObjectManager(g_ObjectMgr)
+   g_Manager.SetObjectManager(g_ObjectMgr);
 
    //--- ایجاد رابط کاربری گرافیکی (GUI)
-   g_GUI = new PFP_GUI(g_Manager)
+   g_GUI = new PFP_GUI(g_Manager);
    if(g_GUI == NULL)
    {
-      g_Logger.Error("خطا در ایجاد GUI")
+      g_Logger.Error("خطا در ایجاد GUI");
       delete g_Manager;
       delete g_ObjectMgr;
       delete g_Renderer;
@@ -169,37 +169,37 @@ int OnInit()
    }
    
    //--- اعمال تم انتخاب شده و راه‌اندازی اولیه GUI
-   g_GUI->SetTheme(Inp_GUITheme)
-   if(!g_GUI->Initialize()
+   g_GUI->SetTheme(Inp_GUITheme);
+   if(!g_GUI->Initialize())
    {
-      g_Logger.Warning("راه‌اندازی اولیه GUI با مشکل مواجه شد، اما ادامه می‌دهیم.")
+      g_Logger.Warning("راه‌اندازی اولیه GUI با مشکل مواجه شد، اما ادامه می‌دهیم.");
    }
    else
    {
-      g_Logger.Info("رابط کاربری گرافیکی با موفقیت راه‌اندازی شد.")
+      g_Logger.Info("رابط کاربری گرافیکی با موفقیت راه‌اندازی شد.");
    }
 
    //--- ایجاد داشبورد حرفه‌ای
-   g_Dashboard = new CPFP_Dashboard(ChartID(), g_Logger)
+   g_Dashboard = new CPFP_Dashboard(ChartID(), g_Logger);
    if(g_Dashboard == NULL)
    {
-      g_Logger.Error("خطا در ایجاد Dashboard")
+      g_Logger.Error("خطا در ایجاد Dashboard");
       // ادامه می‌دهیم چون داشبورد حیاتی نیست
    }
    else
    {
-      g_Dashboard.Create()
-      g_Logger.Info("داشبورد حرفه‌ای با موفقیت ایجاد شد.")
+      g_Dashboard.Create();
+      g_Logger.Info("داشبورد حرفه‌ای با موفقیت ایجاد شد.");
    }
 
    //--- بارگذاری داده‌های ذخیره شده
-   if(!g_Manager.LoadAll()
+   if(!g_Manager.LoadAll())
    {
-      g_Logger.Warning("بارگذاری داده‌های قبلی با مشکل مواجه شد یا فایلی وجود ندارد.")
+      g_Logger.Warning("بارگذاری داده‌های قبلی با مشکل مواجه شد یا فایلی وجود ندارد.");
    }
    else
    {
-      g_Logger.Info("داده‌های ذخیره شده با موفقیت بارگذاری شدند.")
+      g_Logger.Info("داده‌های ذخیره شده با موفقیت بارگذاری شدند.");
    }
 
    //--- تنظیم تایمر برای بررسی دوره‌ای
@@ -216,7 +216,7 @@ int OnInit()
 void OnDeinit(const int reason)
 {
    if(g_Logger != NULL)
-      g_Logger.Info("خاموش کردن اندیکاتور. دلیل: " + IntegerToString(reason)
+      g_Logger.Info("خاموش کردن اندیکاتور. دلیل: " + IntegerToString(reason));
    
    //--- مخفی کردن و پاکسازی داشبورد
    if(g_Dashboard != NULL)
@@ -227,14 +227,14 @@ void OnDeinit(const int reason)
    //--- مخفی کردن و پاکسازی GUI
    if(g_GUI != NULL)
    {
-      g_GUI->Hide()
+      g_GUI->Hide();
       delete g_GUI;
    }
    
    //--- ذخیره داده‌ها قبل از خروج
    if(g_Manager != NULL)
    {
-      g_Manager.SaveAll()
+      g_Manager.SaveAll();
       delete g_Manager;
    }
    
@@ -253,7 +253,7 @@ void OnDeinit(const int reason)
    if(g_Logger != NULL)
       delete g_Logger;
 
-   EventKillTimer()
+   EventKillTimer();
    Comment(""); // پاک کردن متن روی چارت
 }
 
@@ -291,19 +291,19 @@ int OnCalculate(const int rates_total,
    //--- رسم مجدد تمام پیچ‌فورک‌های فعال (فقط اگر Geometry تغییر کرده باشد)
    if(g_Manager != NULL)
    {
-      g_Manager.RenderAllActive()
+      g_Manager.RenderAllActive();
    }
    
    //--- بروزرسانی داشبورد
    if(g_Dashboard != NULL && g_Manager != NULL)
    {
-      int count = g_Manager.GetCount()
+      int count = g_Manager.GetCount();
       bool storage_ok = true; // فرض بر سالم بودن
-      g_Dashboard.Update(count, storage_ok)
+      g_Dashboard.Update(count, storage_ok);
    }
 
    //--- پردازش رویدادهای صف
-   ProcessEventQueue()
+   ProcessEventQueue();
    
    g_IsProcessing = false;
    return rates_total;
@@ -323,7 +323,7 @@ void OnChartEvent(const int id,
    {
       int x = (int)lparam;
       int y = (int)dparam;
-      if(g_Dashboard.CheckHover(x, y)
+      if(g_Dashboard.CheckHover(x, y))
       {
          ChartRedraw(); // رسم مجدد برای افکت‌های Hover
       }
@@ -335,37 +335,37 @@ void OnChartEvent(const int id,
       string objName = sparam;
       
       // بررسی اینکه آیا کلیک مربوط به دکمه‌های داشبورد است
-      if(StringFind(objName, "PFP_Dash_")
+      if(StringFind(objName, "PFP_Dash_") >= 0)
       {
-         if(g_Dashboard.ProcessClick(objName)
+         if(g_Dashboard.ProcessClick(objName))
          {
             // اگر کلیک روی دکمه اسکن بود
             if(StringFind(objName, "BtnScan") >= 0)
             {
-               g_Logger.Info("دستور اسکن از داشبورد دریافت شد")
-               HandleScanCommand()
+               g_Logger.Info("دستور اسکن از داشبورد دریافت شد");
+               HandleScanCommand();
             }
             // اگر کلیک روی دکمه حذف همه بود
             else if(StringFind(objName, "BtnClear") >= 0)
             {
-               g_Logger.Info("دستور حذف همه از داشبورد دریافت شد")
+               g_Logger.Info("دستور حذف همه از داشبورد دریافت شد");
                if(g_Manager != NULL)
                {
-                  g_Manager.RemoveAll()
+                  g_Manager.RemoveAll();
                   g_SelectedPitchforkID = "";
-                  Comment("")
+                  Comment("");
                }
             }
             // اگر کلیک روی دکمه Toggle بود (باز/بسته کردن) - توسط خود Dashboard پردازش شده
-            ChartRedraw()
+            ChartRedraw();
          }
       }
    }
    
    //--- ارسال رویداد به GUI برای پردازش
-   if(g_GUI != NULL && g_GUI->IsVisible()
+   if(g_GUI != NULL && g_GUI->IsVisible())
    {
-      g_GUI->OnChartEvent(id, lparam, dparam, sparam)
+      g_GUI->OnChartEvent(id, lparam, dparam, sparam);
    }
    
    //--- افزودن رویداد به صف برای پردازش ناهمگام
@@ -375,25 +375,25 @@ void OnChartEvent(const int id,
       g_EventQueue[g_EventQueueSize].lparam = lparam;
       g_EventQueue[g_EventQueueSize].dparam = dparam;
       g_EventQueue[g_EventQueueSize].sparam = sparam;
-      g_EventQueue[g_EventQueueSize].timestamp = TimeCurrent()
+      g_EventQueue[g_EventQueueSize].timestamp = TimeCurrent();
       g_EventQueueSize++;
    }
    
    //--- پردازش فوری برخی رویدادهای کلیدی
    if(id == CHARTEVENT_KEYDOWN)
    {
-      string key = StringSubstr(sparam, 0, 1)
+      string key = StringSubstr(sparam, 0, 1);
       
       //--- کلید نمایش/مخفی کردن GUI (G)
       if(StringToUpper(key) == StringToUpper(Inp_GUIKey))
       {
-         g_Logger.Info("دستور نمایش/مخفی کردن GUI دریافت شد (کلید: " + Inp_GUIKey + ")")
+         g_Logger.Info("دستور نمایش/مخفی کردن GUI دریافت شد (کلید: " + Inp_GUIKey + ")");
          if(g_GUI != NULL)
          {
-            g_GUI->Toggle()
-            if(g_GUI->IsVisible()
+            g_GUI->Toggle();
+            if(g_GUI->IsVisible())
             {
-               g_GUI->Refresh()
+               g_GUI->Refresh();
             }
          }
       }
@@ -401,15 +401,15 @@ void OnChartEvent(const int id,
       //--- کلید اسکن (S)
       if(StringToUpper(key) == StringToUpper(Inp_ScanKey))
       {
-         g_Logger.Info("دستور اسکن دریافت شد (کلید: " + Inp_ScanKey + ")")
-         HandleScanCommand()
+         g_Logger.Info("دستور اسکن دریافت شد (کلید: " + Inp_ScanKey + ")");
+         HandleScanCommand();
       }
       
       //--- کلید جایگزینی (R)
       if(StringToUpper(key) == StringToUpper(Inp_ReplaceKey))
       {
-         g_Logger.Info("دستور جایگزینی دریافت شد (کلید: " + Inp_ReplaceKey + ")")
-         HandleReplaceCommand()
+         g_Logger.Info("دستور جایگزینی دریافت شد (کلید: " + Inp_ReplaceKey + ")");
+         HandleReplaceCommand();
       }
       
       //--- کلید حذف (D یا Delete)
@@ -417,14 +417,14 @@ void OnChartEvent(const int id,
       {
          if(StringLen(g_SelectedPitchforkID) > 0)
          {
-            g_Logger.Info("حذف پیچ‌فورک انتخاب شده: " + g_SelectedPitchforkID)
-            g_Manager.RemovePitchfork(g_SelectedPitchforkID)
+            g_Logger.Info("حذف پیچ‌فورک انتخاب شده: " + g_SelectedPitchforkID);
+            g_Manager.RemovePitchfork(g_SelectedPitchforkID);
             g_SelectedPitchforkID = "";
-            Comment("")
+            Comment("");
             // بروزرسانی GUI پس از حذف
-            if(g_GUI != NULL && g_GUI->IsVisible()
+            if(g_GUI != NULL && g_GUI->IsVisible())
             {
-               g_GUI->Refresh()
+               g_GUI->Refresh();
             }
          }
       }
@@ -434,12 +434,12 @@ void OnChartEvent(const int id,
    if(id == CHARTEVENT_OBJECT_CLICK)
    {
       string objName = sparam;
-      if(StringFind(objName, "PFP_")
+      if(StringFind(objName, "PFP_") >= 0)
       {
-         if(ExtractIDFromObjectName(objName, g_SelectedPitchforkID)
+         if(ExtractIDFromObjectName(objName, g_SelectedPitchforkID))
          {
-            g_Logger.Debug("پیچ‌فورک انتخاب شد: " + g_SelectedPitchforkID)
-            Comment("پیچ‌فورک فعال: " + g_SelectedPitchforkID + "\nبرای حذف کلید D را بزنید.")
+            g_Logger.Debug("پیچ‌فورک انتخاب شد: " + g_SelectedPitchforkID);
+            Comment("پیچ‌فورک فعال: " + g_SelectedPitchforkID + "\nبرای حذف کلید D را بزنید.");
          }
       }
    }
@@ -448,12 +448,12 @@ void OnChartEvent(const int id,
    if(id == CHARTEVENT_OBJECT_CHANGE)
    {
       string objName = sparam;
-      if(StringFind(objName, "PFP_")
+      if(StringFind(objName, "PFP_") >= 0)
       {
          string pfID = "";
-         if(ExtractIDFromObjectName(objName, pfID)
+         if(ExtractIDFromObjectName(objName, pfID))
          {
-            g_Logger.Debug("تغییر دستی detected در: " + pfID)
+            g_Logger.Debug("تغییر دستی detected در: " + pfID);
             // Update coordinates logic would go here
          }
       }
@@ -471,9 +471,9 @@ void ProcessEventQueue()
    {
       //--- پردازش رویدادهای ذخیره شده در صف
       //--- در حال حاضر فقط برای لاگ و آمار استفاده می‌شود
-      if(g_Logger.IsEnabled(LOG_LEVEL_DEBUG)
+      if(g_Logger.IsEnabled(LOG_LEVEL_DEBUG))
       {
-         g_Logger.Debug("پردازش رویداد از صف: " + IntegerToString(g_EventQueue[i].type)
+         g_Logger.Debug("پردازش رویداد از صف: " + IntegerToString(g_EventQueue[i].type));
       }
    }
    
@@ -502,7 +502,7 @@ void HandleScanCommand()
 {
    if(!Inp_EnableScanner)
    {
-      g_Logger.Warning("اسکنر غیرفعال است.")
+      g_Logger.Warning("اسکنر غیرفعال است.");
       return;
    }
 
@@ -511,24 +511,24 @@ void HandleScanCommand()
    // اسکن و ذخیره تمام پیچ‌فورک‌های موجود در چارت
    if(g_Manager != NULL)
    {
-      g_Manager.ScanAndStoreAll()
-      g_Manager.RenderAllActive()
+      g_Manager.ScanAndStoreAll();
+      g_Manager.RenderAllActive();
       
       // بروزرسانی GUI اگر فعال است
-      if(g_GUI != NULL && g_GUI->IsVisible()
+      if(g_GUI != NULL && g_GUI->IsVisible())
       {
-         g_GUI->Refresh()
+         g_GUI->Refresh();
       }
       
       // بروزرسانی داشبورد
       if(g_Dashboard != NULL)
       {
-         int count = g_Manager.GetCount()
-         g_Dashboard.Update(count, true)
+         int count = g_Manager.GetCount();
+         g_Dashboard.Update(count, true);
       }
    }
    
-   g_Logger.Info("اسکن انجام شد.")
+   g_Logger.Info("اسکن انجام شد.");
    
    g_IsProcessing = false;
 }
@@ -544,24 +544,24 @@ void HandleReplaceCommand()
    // جایگزینی تمام پیچ‌فورک‌های استاندارد با نسخه پیشرفته
    if(g_Manager != NULL)
    {
-      g_Manager.ReplaceAllPitchforks()
-      g_Manager.RenderAllActive()
+      g_Manager.ReplaceAllPitchforks();
+      g_Manager.RenderAllActive();
       
       // بروزرسانی GUI اگر فعال است
-      if(g_GUI != NULL && g_GUI->IsVisible()
+      if(g_GUI != NULL && g_GUI->IsVisible())
       {
-         g_GUI->Refresh()
+         g_GUI->Refresh();
       }
       
       // بروزرسانی داشبورد
       if(g_Dashboard != NULL)
       {
-         int count = g_Manager.GetCount()
-         g_Dashboard.Update(count, true)
+         int count = g_Manager.GetCount();
+         g_Dashboard.Update(count, true);
       }
    }
    
-   g_Logger.Info("جایگزینی انجام شد.")
+   g_Logger.Info("جایگزینی انجام شد.");
    
    g_IsProcessing = false;
 }
@@ -573,13 +573,13 @@ void HandleReplaceCommand()
 bool ExtractIDFromObjectName(const string objName, string &outID)
 {
    // فرمت نام: PFP_{ID}_L{LineIndex}
-   int start = StringFind(objName, "_")
+   int start = StringFind(objName, "_");
    if(start == -1) return false;
    
-   int end = StringFind(objName, "_", start + 1)
+   int end = StringFind(objName, "_", start + 1);
    if(end == -1) return false;
    
-   outID = StringSubstr(objName, start + 1, end - start - 1)
+   outID = StringSubstr(objName, start + 1, end - start - 1);
    return (StringLen(outID) > 0);
 }
 

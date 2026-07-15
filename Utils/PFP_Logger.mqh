@@ -80,9 +80,9 @@ public:
    }
    
    //--- بررسی فعال بودن لاگ
-   bool IsEnabled() const
+   bool IsEnabled(ENUM_PFP_LOG_LEVEL level = LOG_LEVEL_DEBUG) const
    {
-      return m_ShowLogs && m_LogLevel != LOG_LEVEL_NONE;
+      return m_ShowLogs && m_LogLevel <= level;
    }
    
    //--- لاگ سطح DEBUG
