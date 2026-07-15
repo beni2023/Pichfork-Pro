@@ -3,9 +3,10 @@
 
 #include "../Utils/PFP_Constants.mqh"
 #include "../Utils/PFP_Logger.mqh"
-#include "PFP_MultiManager.mqh"
 #include "PFP_Renderer.mqh"
 #include "PFP_GeometryEngine.mqh"
+
+class CPFP_MultiManager;
 
 class CPFP_ObjectManager
 {

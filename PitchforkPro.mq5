@@ -169,8 +169,8 @@ int OnInit()
    }
    
    //--- اعمال تم انتخاب شده و راه‌اندازی اولیه GUI
-   g_GUI->SetTheme(Inp_GUITheme);
-   if(!g_GUI->Initialize())
+   g_GUI.SetTheme(Inp_GUITheme);
+   if(!g_GUI.Initialize())
    {
       g_Logger.Warning("راه‌اندازی اولیه GUI با مشکل مواجه شد، اما ادامه می‌دهیم.");
    }
@@ -205,7 +205,7 @@ int OnInit()
    //--- تنظیم تایمر برای بررسی دوره‌ای
    EventSetTimer(1); // بررسی هر 1 ثانیه
 
-   g_Logger.Info("راه‌اندازی با موفقیت انجام شد.")
+   g_Logger.Info("راه‌اندازی با موفقیت انجام شد.");
    return INIT_SUCCEEDED;
 }
 
@@ -227,7 +227,7 @@ void OnDeinit(const int reason)
    //--- مخفی کردن و پاکسازی GUI
    if(g_GUI != NULL)
    {
-      g_GUI->Hide();
+      g_GUI.Hide();
       delete g_GUI;
    }
    
@@ -363,9 +363,9 @@ void OnChartEvent(const int id,
    }
    
    //--- ارسال رویداد به GUI برای پردازش
-   if(g_GUI != NULL && g_GUI->IsVisible())
+   if(g_GUI != NULL && g_GUI.IsVisible())
    {
-      g_GUI->OnChartEvent(id, lparam, dparam, sparam);
+      g_GUI.OnChartEvent(id, lparam, dparam, sparam);
    }
    
    //--- افزودن رویداد به صف برای پردازش ناهمگام
@@ -385,28 +385,37 @@ void OnChartEvent(const int id,
       string key = StringSubstr(sparam, 0, 1);
       
       //--- کلید نمایش/مخفی کردن GUI (G)
-      if(StringToUpper(key) == StringToUpper(Inp_GUIKey))
+      string guiKey = Inp_GUIKey;
+      StringToUpper(key);
+      StringToUpper(guiKey);
+      if(key == guiKey)
       {
          g_Logger.Info("دستور نمایش/مخفی کردن GUI دریافت شد (کلید: " + Inp_GUIKey + ")");
          if(g_GUI != NULL)
          {
-            g_GUI->Toggle();
-            if(g_GUI->IsVisible())
+            g_GUI.Toggle();
+            if(g_GUI.IsVisible())
             {
-               g_GUI->Refresh();
+               g_GUI.Refresh();
             }
          }
       }
       
       //--- کلید اسکن (S)
-      if(StringToUpper(key) == StringToUpper(Inp_ScanKey))
+      string scanKey = Inp_ScanKey;
+      StringToUpper(key);
+      StringToUpper(scanKey);
+      if(key == scanKey)
       {
          g_Logger.Info("دستور اسکن دریافت شد (کلید: " + Inp_ScanKey + ")");
          HandleScanCommand();
       }
       
       //--- کلید جایگزینی (R)
-      if(StringToUpper(key) == StringToUpper(Inp_ReplaceKey))
+      string replaceKey = Inp_ReplaceKey;
+      StringToUpper(key);
+      StringToUpper(replaceKey);
+      if(key == replaceKey)
       {
          g_Logger.Info("دستور جایگزینی دریافت شد (کلید: " + Inp_ReplaceKey + ")");
          HandleReplaceCommand();
@@ -422,9 +431,9 @@ void OnChartEvent(const int id,
             g_SelectedPitchforkID = "";
             Comment("");
             // بروزرسانی GUI پس از حذف
-            if(g_GUI != NULL && g_GUI->IsVisible())
+            if(g_GUI != NULL && g_GUI.IsVisible())
             {
-               g_GUI->Refresh();
+               g_GUI.Refresh();
             }
          }
       }
@@ -515,9 +524,9 @@ void HandleScanCommand()
       g_Manager.RenderAllActive();
       
       // بروزرسانی GUI اگر فعال است
-      if(g_GUI != NULL && g_GUI->IsVisible())
+      if(g_GUI != NULL && g_GUI.IsVisible())
       {
-         g_GUI->Refresh();
+         g_GUI.Refresh();
       }
       
       // بروزرسانی داشبورد
@@ -548,9 +557,9 @@ void HandleReplaceCommand()
       g_Manager.RenderAllActive();
       
       // بروزرسانی GUI اگر فعال است
-      if(g_GUI != NULL && g_GUI->IsVisible())
+      if(g_GUI != NULL && g_GUI.IsVisible())
       {
-         g_GUI->Refresh();
+         g_GUI.Refresh();
       }
       
       // بروزرسانی داشبورد

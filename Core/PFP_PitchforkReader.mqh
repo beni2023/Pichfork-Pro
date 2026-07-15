@@ -90,7 +90,7 @@ bool FindPitchfork(CPFP_Pitchfork &pitchfork)
 
 
       string id="PFP_STD_"+TimeToString(TimeCurrent(),TIME_SECONDS);
-      id=StringReplace(id,":","_");
+      StringReplace(id,":","_");
       pitchfork.SetID(id);
 
 
