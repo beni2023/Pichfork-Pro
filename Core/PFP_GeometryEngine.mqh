@@ -189,39 +189,18 @@ bool Build(
    // Median Line
    //--------------------------------------------------
 
-   geo.MedianTime1=
-      pf.TimeA();
-
-
-   geo.MedianPrice1=
-      pf.PriceA();
-
-
-
-   geo.MedianTime2=
-      medianTime;
-
-
-   geo.MedianPrice2=
-      medianPrice;
-
-
-
+   geo.MedianTimeStart = pf.TimeA();
+   geo.MedianPriceStart = pf.PriceA();
+   geo.MedianTimeEnd = medianTime;
+   geo.MedianPriceEnd = medianPrice;
 
 
    //--------------------------------------------------
    // Vector
    //--------------------------------------------------
 
-   long dx=
-      (long)geo.MedianTime2 -
-      (long)geo.MedianTime1;
-
-
-
-   double dy=
-      geo.MedianPrice2 -
-      geo.MedianPrice1;
+   long dx = (long)geo.MedianTimeEnd - (long)geo.MedianTimeStart;
+   double dy = geo.MedianPriceEnd - geo.MedianPriceStart;
 
 
 
@@ -247,23 +226,23 @@ bool Build(
    // Upper Parallel
    //--------------------------------------------------
 
-   geo.UpperTime1=
+   geo.UpperTimeStart=
       pf.TimeB();
 
 
-   geo.UpperPrice1=
+   geo.UpperPriceStart=
       pf.PriceB();
 
 
 
-   geo.UpperTime2=
+   geo.UpperTimeEnd=
       (datetime)
       (
        (long)pf.TimeB()+dx
       );
 
 
-   geo.UpperPrice2=
+   geo.UpperPriceEnd=
       pf.PriceB()+dy;
 
 
@@ -275,23 +254,23 @@ bool Build(
    // Lower Parallel
    //--------------------------------------------------
 
-   geo.LowerTime1=
+   geo.LowerTimeStart=
       pf.TimeC();
 
 
-   geo.LowerPrice1=
+   geo.LowerPriceStart=
       pf.PriceC();
 
 
 
-   geo.LowerTime2=
+   geo.LowerTimeEnd=
       (datetime)
       (
        (long)pf.TimeC()+dx
       );
 
 
-   geo.LowerPrice2=
+   geo.LowerPriceEnd=
       pf.PriceC()+dy;
 
 
@@ -304,56 +283,36 @@ bool Build(
    // Middle Lines
    //--------------------------------------------------
 
-   geo.MidUpperTime1=
+   geo.MidUpperTimeStart=
       (datetime)
       (
-       ((long)geo.MedianTime1+
-        (long)geo.UpperTime1)/2
+       ((long)geo.MedianTimeStart+
+        (long)geo.UpperTimeStart)/2
       );
 
 
-   geo.MidUpperPrice1=
+   geo.MidUpperPriceStart=
       (
-       geo.MedianPrice1+
-       geo.UpperPrice1
+       geo.MedianPriceStart+
+       geo.UpperPriceStart
       )
       /
       2.0;
 
 
 
-   geo.MidUpperTime2=
+   geo.MidUpperTimeEnd=
       (datetime)
       (
-       ((long)geo.MedianTime2+
-        (long)geo.UpperTime2)/2
+       ((long)geo.MedianTimeEnd+
+        (long)geo.UpperTimeEnd)/2
       );
 
 
-   geo.MidUpperPrice2=
+   geo.MidUpperPriceEnd=
       (
-       geo.MedianPrice2+
-       geo.UpperPrice2
-      )
-      /
-      2.0;
-
-
-
-
-
-   geo.MidLowerTime1=
-      (datetime)
-      (
-       ((long)geo.MedianTime1+
-        (long)geo.LowerTime1)/2
-      );
-
-
-   geo.MidLowerPrice1=
-      (
-       geo.MedianPrice1+
-       geo.LowerPrice1
+       geo.MedianPriceEnd+
+       geo.UpperPriceEnd
       )
       /
       2.0;
@@ -361,18 +320,38 @@ bool Build(
 
 
 
-   geo.MidLowerTime2=
+
+   geo.MidLowerTimeStart=
       (datetime)
       (
-       ((long)geo.MedianTime2+
-        (long)geo.LowerTime2)/2
+       ((long)geo.MedianTimeStart+
+        (long)geo.LowerTimeStart)/2
       );
 
 
-   geo.MidLowerPrice2=
+   geo.MidLowerPriceStart=
       (
-       geo.MedianPrice2+
-       geo.LowerPrice2
+       geo.MedianPriceStart+
+       geo.LowerPriceStart
+      )
+      /
+      2.0;
+
+
+
+
+   geo.MidLowerTimeEnd=
+      (datetime)
+      (
+       ((long)geo.MedianTimeEnd+
+        (long)geo.LowerTimeEnd)/2
+      );
+
+
+   geo.MidLowerPriceEnd=
+      (
+       geo.MedianPriceEnd+
+       geo.LowerPriceEnd
       )
       /
       2.0;

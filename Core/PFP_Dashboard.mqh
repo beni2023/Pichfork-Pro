@@ -199,7 +199,7 @@ public:
    
 private:
    //--- Helper: Create Label
-   bool CreateLabel(string name, int x, int y, string text, clr color, int font_size, bool bold)
+   bool CreateLabel(string name, int x, int y, string text, color clr, int font_size, bool bold)
    {
       if(ObjectFind(m_chart_id, name) < 0)
       {
@@ -220,7 +220,7 @@ private:
    }
    
    //--- Helper: Create Rectangle Background
-   bool CreateRectLabel(string name, int x, int y, int w, int h, clr bg_color, int corner, clr border_color, int border_width)
+   bool CreateRectLabel(string name, int x, int y, int w, int h, color bg_color, int corner, color border_color, int border_width)
    {
       if(ObjectFind(m_chart_id, name) < 0)
       {
@@ -244,7 +244,7 @@ private:
    }
    
    //--- Helper: Create Button
-   bool CreateButton(string name, int x, int y, int w, int h, string text, clr txt_color, clr bg_color)
+   bool CreateButton(string name, int x, int y, int w, int h, string text, color txt_color, color bg_color)
    {
       if(ObjectFind(m_chart_id, name) < 0)
       {
