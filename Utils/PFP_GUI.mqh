@@ -59,7 +59,7 @@ private:
    CPFP_MultiManager *m_manager;       // اشاره‌گر به مدیر چندگانه
    
    // --- کش اشیاء ---
-   map<string, long> m_gui_objects;    // ذخیره نام اشیاء برای مدیریت سریع
+   string m_gui_objects;    // ذخیره نام اشیاء برای مدیریت سریع
 
    // --- متدهای داخلی ترسیم ---
    bool CreateBackground();

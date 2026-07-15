@@ -114,10 +114,10 @@ public:
    }
    
    //--- لاگ با فرمت سفارشی
-   void Format(ENUM_PFP_LOG_LEVEL level, const string format, ...)
+   string Format(ENUM_PFP_LOG_LEVEL level, const string format, ...)
    {
       if(level < m_LogLevel || !m_ShowLogs)
-         return;
+         return "";
       
       string msg = StringSubstr(format, 0); // کپی ساده
       
@@ -125,6 +125,7 @@ public:
       // در صورت نیاز می‌توان StringFormat اضافه کرد
       
       LogMessage(EnumToString(level), msg);
+      return msg;
    }
    
 private:
@@ -132,7 +133,7 @@ private:
    void LogMessage(const string level, const string msg)
    {
       if(!m_ShowLogs)
-         return;
+         return "";
       
       m_MessageCount++;
       string timestamp = TimeToString(TimeCurrent(), TIME_SECONDS);
