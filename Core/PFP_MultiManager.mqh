@@ -390,7 +390,8 @@ public:
       {
          for(int i = 0; i < m_count; i++)
          {
-            m_objManager.DeletePitchforkObjects(m_pitchforks[i].GetID());
+            string pfID = m_pitchforks[i].GetID();
+            m_objManager.DeletePitchforkObjects(pfID);
          }
       }
       

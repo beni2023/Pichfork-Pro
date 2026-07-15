@@ -59,7 +59,7 @@ private:
    CPFP_MultiManager *m_manager;       // اشاره‌گر به مدیر چندگانه
    
    // --- کش اشیاء ---
-   string m_gui_objects;    // ذخیره نام اشیاء برای مدیریت سریع
+   string m_gui_objects[]; // ذخیره نام اشیاء برای مدیریت سریع
 
    // --- متدهای داخلی ترسیم ---
    bool CreateBackground();
@@ -75,10 +75,11 @@ private:
    
    // --- توابع کمکی ---
    void ApplyTheme(ENUM_PFP_THEME theme);
-   string GetObjectName(const string &base);
+   string GetObjectName(string base);
    void DeleteAllObjects();
    string FormatTime(datetime time);
    color GetStatusColor(int status);
+   void RegisterObject(string name);
 
 public:
    // --- سازنده و ویرانگر ---
@@ -124,7 +125,7 @@ PFP_GUI::PFP_GUI(CPFP_MultiManager *manager)
    m_scroll_offset = 0;
    m_is_scrolling = false;
    
-   PFP_LOG_INFO("GUI", "Constructor initialized");
+   Print("GUI: Constructor initialized");
 }
 
 //+------------------------------------------------------------------+
@@ -133,7 +134,7 @@ PFP_GUI::PFP_GUI(CPFP_MultiManager *manager)
 PFP_GUI::~PFP_GUI()
 {
    DeleteAllObjects();
-   PFP_LOG_INFO("GUI", "Destructor called, objects cleaned up");
+   Print("GUI: Destructor called, objects cleaned up");
 }
 
 //+------------------------------------------------------------------+
@@ -151,7 +152,7 @@ bool PFP_GUI::Initialize()
       if(!CreateListContainer()) return false;
       
       m_is_visible = true;
-      PFP_LOG_INFO("GUI", "Initialization successful");
+      Print("GUI: Initialization successful");
       return true;
    }
    return false;
@@ -196,7 +197,7 @@ void PFP_GUI::ApplyTheme(ENUM_PFP_THEME theme)
    }
    
    m_current_theme = theme;
-   PFP_LOG_DEBUG("GUI", "Theme applied: " + EnumToString(theme));
+   Print("GUI: Theme applied: " + EnumToString(theme));
 }
 
 //+------------------------------------------------------------------+
@@ -219,10 +220,10 @@ bool PFP_GUI::CreateBackground()
       ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_HIDDEN, true);
       
-      m_gui_objects[name] = 1;
+      RegisterObject(name);
       return true;
    }
-   PFP_LOG_ERROR("GUI", "Failed to create background: " + name);
+   Print("GUI: Failed to create background: " + name);
    return false;
 }
 
@@ -242,7 +243,7 @@ bool PFP_GUI::CreateHeader()
       ObjectSetInteger(0, name, OBJPROP_BACK, true);
       ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, name, OBJPROP_HIDDEN, true);
-      m_gui_objects[name] = 1;
+      RegisterObject(name);
    }
    
    // عنوان
@@ -258,7 +259,7 @@ bool PFP_GUI::CreateHeader()
       ObjectSetString(0, titleName, OBJPROP_FONT, "Arial Bold");
       ObjectSetInteger(0, titleName, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, titleName, OBJPROP_HIDDEN, true);
-      m_gui_objects[titleName] = 1;
+      RegisterObject(titleName);
    }
    
    // دکمه بستن
@@ -274,8 +275,7 @@ bool PFP_GUI::CreateHeader()
       ObjectSetString(0, closeBtn, OBJPROP_TEXT, "X");
       ObjectSetString(0, closeBtn, OBJPROP_FONT, "Arial Bold");
       ObjectSetInteger(0, closeBtn, OBJPROP_FONTSIZE, 8);
-      ObjectSetInteger(0, closeBtn, OBJPROP_ACTION, CHARTEVENT_CLICK);
-      m_gui_objects[closeBtn] = 1;
+      RegisterObject(closeBtn);
    }
    
    return true;
@@ -302,7 +302,7 @@ bool PFP_GUI::CreateControls()
       ObjectSetString(0, scanBtn, OBJPROP_TEXT, "Scan Chart");
       ObjectSetString(0, scanBtn, OBJPROP_FONT, "Arial");
       ObjectSetInteger(0, scanBtn, OBJPROP_FONTSIZE, 8);
-      m_gui_objects[scanBtn] = 1;
+      RegisterObject(scanBtn);
    }
    
    // دکمه جایگزینی
@@ -318,7 +318,7 @@ bool PFP_GUI::CreateControls()
       ObjectSetString(0, replaceBtn, OBJPROP_TEXT, "Replace All");
       ObjectSetString(0, replaceBtn, OBJPROP_FONT, "Arial");
       ObjectSetInteger(0, replaceBtn, OBJPROP_FONTSIZE, 8);
-      m_gui_objects[replaceBtn] = 1;
+      RegisterObject(replaceBtn);
    }
    
    return true;
@@ -346,7 +346,7 @@ bool PFP_GUI::CreateListContainer()
       ObjectSetInteger(0, listBg, OBJPROP_BACK, true);
       ObjectSetInteger(0, listBg, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, listBg, OBJPROP_HIDDEN, true);
-      m_gui_objects[listBg] = 1;
+      RegisterObject(listBg);
    }
    
    // اسکرول بار ساده
@@ -361,7 +361,7 @@ bool PFP_GUI::CreateListContainer()
       ObjectSetInteger(0, scrollBar, OBJPROP_BACK, true);
       ObjectSetInteger(0, scrollBar, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, scrollBar, OBJPROP_HIDDEN, true);
-      m_gui_objects[scrollBar] = 1;
+      RegisterObject(scrollBar);
    }
    
    UpdateItemList();
@@ -397,7 +397,7 @@ bool PFP_GUI::UpdateItemList()
          ObjectSetString(0, emptyLabel, OBJPROP_TEXT, "No Pitchforks Found");
          ObjectSetString(0, emptyLabel, OBJPROP_FONT, "Arial Italic");
          ObjectSetInteger(0, emptyLabel, OBJPROP_FONTSIZE, 9);
-         m_gui_objects[emptyLabel] = 1;
+         RegisterObject(emptyLabel);
       }
       return true;
    }
@@ -425,7 +425,7 @@ bool PFP_GUI::UpdateItemList()
          ObjectSetInteger(0, itemRect, OBJPROP_BACK, true);
          ObjectSetInteger(0, itemRect, OBJPROP_SELECTABLE, false);
          ObjectSetInteger(0, itemRect, OBJPROP_HIDDEN, true);
-         m_gui_objects[itemRect] = 1;
+         RegisterObject(itemRect);
       }
       
       // متن آیتم (شماره و نوع)
@@ -440,7 +440,7 @@ bool PFP_GUI::UpdateItemList()
          ObjectSetInteger(0, itemLabel, OBJPROP_FONTSIZE, 8);
          ObjectSetInteger(0, itemLabel, OBJPROP_SELECTABLE, false);
          ObjectSetInteger(0, itemLabel, OBJPROP_HIDDEN, true);
-         m_gui_objects[itemLabel] = 1;
+         RegisterObject(itemLabel);
       }
    }
    
@@ -456,7 +456,7 @@ void PFP_GUI::Show()
    {
       Initialize();
       m_is_visible = true;
-      PFP_LOG_INFO("GUI", "Panel shown");
+      Print("GUI: Panel shown");
    }
 }
 
@@ -469,7 +469,7 @@ void PFP_GUI::Hide()
    {
       DeleteAllObjects();
       m_is_visible = false;
-      PFP_LOG_INFO("GUI", "Panel hidden");
+      Print("GUI: Panel hidden");
    }
 }
 
@@ -512,7 +512,7 @@ void PFP_GUI::OnChartEvent(const int id, const long &lparam, const double &dpara
          {
             // استخراج ایندکس و انتخاب Pitchfork مربوطه
             // TODO: پیاده‌سازی منطق انتخاب
-            PFP_LOG_DEBUG("GUI", "Item clicked: " + sparam);
+            Print("GUI: Item clicked: " + sparam);
             ObjectSetInteger(0, sparam, OBJPROP_STATE, false);
          }
       }
@@ -539,9 +539,19 @@ void PFP_GUI::Refresh()
 //+------------------------------------------------------------------+
 //| Helper: Generate Object Name                                     |
 //+------------------------------------------------------------------+
-string PFP_GUI::GetObjectName(const string &base)
+string PFP_GUI::GetObjectName(string base)
 {
    return m_prefix + IntegerToString(m_panel_id) + "_" + base;
+}
+
+//+------------------------------------------------------------------+
+//| Helper: Register Object Name                                     |
+//+------------------------------------------------------------------+
+void PFP_GUI::RegisterObject(string name)
+{
+   int size = ArraySize(m_gui_objects);
+   ArrayResize(m_gui_objects, size + 1);
+   m_gui_objects[size] = name;
 }
 
 //+------------------------------------------------------------------+
@@ -549,11 +559,58 @@ string PFP_GUI::GetObjectName(const string &base)
 //+------------------------------------------------------------------+
 void PFP_GUI::DeleteAllObjects()
 {
-   for(auto it = m_gui_objects.begin(); it != m_gui_objects.end(); ++it)
+   for(int i = ArraySize(m_gui_objects) - 1; i >= 0; i--)
    {
-      ObjectDelete(0, it.first);
+      if(m_gui_objects[i] != "")
+         ObjectDelete(0, m_gui_objects[i]);
    }
-   m_gui_objects.clear();
+   ArrayResize(m_gui_objects, 0);
+}
+
+//+------------------------------------------------------------------+
+//| Internal Mouse Click Handler                                     |
+//+------------------------------------------------------------------+
+bool PFP_GUI::HandleMouseClick(string object_name)
+{
+   return (StringFind(object_name, m_prefix) == 0);
+}
+
+//+------------------------------------------------------------------+
+//| Internal Mouse Move Handler                                      |
+//+------------------------------------------------------------------+
+bool PFP_GUI::HandleMouseMove(int x, int y)
+{
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| Internal Scroll Handler                                          |
+//+------------------------------------------------------------------+
+void PFP_GUI::OnScroll(int delta)
+{
+   m_scroll_offset += delta;
+   if(m_scroll_offset < 0)
+      m_scroll_offset = 0;
+}
+
+//+------------------------------------------------------------------+
+//| Helper: Format Time                                              |
+//+------------------------------------------------------------------+
+string PFP_GUI::FormatTime(datetime time)
+{
+   return TimeToString(time, TIME_DATE | TIME_MINUTES);
+}
+
+//+------------------------------------------------------------------+
+//| Helper: Status Color                                             |
+//+------------------------------------------------------------------+
+color PFP_GUI::GetStatusColor(int status)
+{
+   if(status > 0)
+      return clrLime;
+   if(status < 0)
+      return clrRed;
+   return clrGray;
 }
 
 //+------------------------------------------------------------------+

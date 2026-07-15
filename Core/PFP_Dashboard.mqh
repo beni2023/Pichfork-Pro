@@ -112,7 +112,7 @@ public:
                       clrGold, 10, true)) return false;
       
       // Status Info
-      UpdateInfo(0, true);
+      Update(0, true);
       
       // Buttons Row 1
       int btnY = DASHBOARD_Y + DASHBOARD_HEIGHT - (BTN_HEIGHT * 2) - (GAP * 3) - 40;
@@ -122,7 +122,7 @@ public:
       // Buttons Row 2
       btnY += BTN_HEIGHT + GAP;
       string modeText = m_replace_mode ? "حالت: جایگزینی" : "حالت: عادی";
-      clr modeColor = m_replace_mode ? COLOR_BTN_ACTIVE : COLOR_BTN_NORMAL;
+      color modeColor = m_replace_mode ? COLOR_BTN_ACTIVE : COLOR_BTN_NORMAL;
       if(!CreateButton(m_btn_toggle_mode, DASHBOARD_X + GAP, btnY, BTN_WIDTH * 2 + GAP, BTN_HEIGHT, modeText, clrWhite, modeColor)) return false;
       
       // Help Text
@@ -194,19 +194,19 @@ public:
    {
       m_replace_mode = active;
       string text = active ? "حالت: جایگزینی" : "حالت: عادی";
-      clr color = active ? COLOR_BTN_ACTIVE : COLOR_BTN_NORMAL;
+      color bgColor = active ? COLOR_BTN_ACTIVE : COLOR_BTN_NORMAL;
       
       ObjectSetString(m_chart_id, m_btn_toggle_mode, OBJPROP_TEXT, text);
-      ObjectSetInteger(m_chart_id, m_btn_toggle_mode, OBJPROP_BGCOLOR, color);
+      ObjectSetInteger(m_chart_id, m_btn_toggle_mode, OBJPROP_BGCOLOR, bgColor);
    }
    
 private:
    //--- Helper: Create Label
-   bool CreateLabel(string name, int x, int y, string text, color clr, int font_size, bool bold)
+   bool CreateLabel(string name, int x, int y, string text, color text_color, int font_size, bool bold)
    {
       if(ObjectFind(m_chart_id, name) < 0)
       {
-         if(!ObjectCreate(m_chart_id, name, OBJ_TEXT, m_subwin, 0, 0)) return false;
+         if(!ObjectCreate(m_chart_id, name, OBJ_LABEL, m_subwin, 0, 0)) return false;
          ObjectSetInteger(m_chart_id, name, OBJPROP_SELECTABLE, false);
          ObjectSetInteger(m_chart_id, name, OBJPROP_HIDDEN, true);
       }
@@ -215,9 +215,8 @@ private:
       ObjectSetInteger(m_chart_id, name, OBJPROP_YDISTANCE, y);
       ObjectSetString(m_chart_id, name, OBJPROP_FONT, FONT_NAME);
       ObjectSetInteger(m_chart_id, name, OBJPROP_FONTSIZE, font_size);
-      ObjectSetInteger(m_chart_id, name, OBJPROP_COLOR, color);
-      if(bold) ObjectSetInteger(m_chart_id, name, OBJPROP_STYLE, STYLE_BOLD);
-      else ObjectSetInteger(m_chart_id, name, OBJPROP_STYLE, STYLE_NORMAL);
+      ObjectSetInteger(m_chart_id, name, OBJPROP_COLOR, text_color);
+      ObjectSetString(m_chart_id, name, OBJPROP_FONT, bold ? "Segoe UI Bold" : FONT_NAME);
       
       return true;
    }
@@ -282,7 +281,7 @@ private:
       if(mx >= x && mx <= x + w && my >= y && my <= y + h)
       {
          // Hover state
-         clr current = (clr)ObjectGetInteger(m_chart_id, btn_name, OBJPROP_BGCOLOR);
+         color current = (color)ObjectGetInteger(m_chart_id, btn_name, OBJPROP_BGCOLOR);
          if(current != COLOR_BTN_HOVER && current != COLOR_BTN_ACTIVE) // Don't override active state
          {
             ObjectSetInteger(m_chart_id, btn_name, OBJPROP_BGCOLOR, COLOR_BTN_HOVER);
@@ -292,11 +291,11 @@ private:
       else
       {
          // Normal state (restore based on type)
-         clr original = COLOR_BTN_NORMAL;
+         color original = COLOR_BTN_NORMAL;
          if(btn_name == m_btn_clear) original = COLOR_BTN_DELETE;
          if(btn_name == m_btn_toggle_mode) original = m_replace_mode ? COLOR_BTN_ACTIVE : COLOR_BTN_NORMAL;
          
-         clr current = (clr)ObjectGetInteger(m_chart_id, btn_name, OBJPROP_BGCOLOR);
+         color current = (color)ObjectGetInteger(m_chart_id, btn_name, OBJPROP_BGCOLOR);
          if(current != original && current != COLOR_BTN_HOVER) // If not already active/hover
          {
              // Only revert if we aren't in active state logic (simplified here)
