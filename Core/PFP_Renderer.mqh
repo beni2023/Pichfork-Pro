@@ -32,7 +32,7 @@ public:
 
 void Draw(
           CPFP_Pitchfork &pf,
-          CPFP_GeometryData &geo,
+          S_PFP_Geometry &geo,
           ENUM_PFP_RENDER_MODE mode = RENDER_MODE_FULL
          )
 {
@@ -48,7 +48,7 @@ void Draw(
    }
 
 
-   string id = ObjectID(pf);
+   string id = pf.ID();
 
 
    // Validate geometry data
@@ -169,7 +169,7 @@ void Draw(
 
 void Clear(CPFP_Pitchfork &pf)
 {
-   string id = ObjectID(pf);
+   string id = pf.ID();
    ClearByID(id);
 }
 

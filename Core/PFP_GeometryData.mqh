@@ -67,7 +67,7 @@ struct S_PFP_Geometry
    S_PFP_Geometry() 
    {
       ID = 0;
-      Type = PFP_TYPE_STANDARD;
+      Type = PFP_STANDARD;
       Direction = PFP_BULLISH;
       Reset();
    }

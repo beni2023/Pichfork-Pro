@@ -17,7 +17,7 @@ public:
 
 bool Build(
            CPFP_Pitchfork &pf,
-           CPFP_GeometryData &geo
+           S_PFP_Geometry &geo
           )
 {
 
