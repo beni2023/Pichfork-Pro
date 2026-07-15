@@ -6,7 +6,7 @@
 #property indicator_chart_window
 #property strict
 #property indicator_plots 0
-#property version   "1.0.1"
+#property version   "001.001"
 #property description "اندیکاتور پیشرفته چنگال اندروز با قابلیت ذخیره‌سازی، جایگزینی و تشخیص هوشمند - نسخه اصلاح شده 1.0.1"
 
 
@@ -180,7 +180,7 @@ int OnInit()
    }
 
    //--- ایجاد داشبورد حرفه‌ای
-   g_Dashboard = new CPFP_Dashboard(0, g_Logger);
+   g_Dashboard = new CPFP_Dashboard(ChartID(), g_Logger);
    if(g_Dashboard == NULL)
    {
       g_Logger.Error("خطا در ایجاد Dashboard");
@@ -299,7 +299,7 @@ int OnCalculate(const int rates_total,
    {
       int count = g_Manager.GetCount();
       bool storage_ok = true; // فرض بر سالم بودن
-      g_Dashboard.Update(count, true);
+      g_Dashboard.Update(count, storage_ok);
    }
 
    //--- پردازش رویدادهای صف
@@ -323,7 +323,7 @@ void OnChartEvent(const int id,
    {
       int x = (int)lparam;
       int y = (int)dparam;
-      if(g_Dashboard->CheckHover(x, y))
+      if(g_Dashboard.CheckHover(x, y))
       {
          ChartRedraw(); // رسم مجدد برای افکت‌های Hover
       }
@@ -337,16 +337,16 @@ void OnChartEvent(const int id,
       // بررسی اینکه آیا کلیک مربوط به دکمه‌های داشبورد است
       if(StringFind(objName, "PFP_Dash_") == 0)
       {
-         if(g_Dashboard->ProcessClick(objName))
+         if(g_Dashboard.ProcessClick(objName))
          {
             // اگر کلیک روی دکمه اسکن بود
-            if(StringFind(objName, "ScanBtn") > 0)
+            if(StringFind(objName, "BtnScan") >= 0)
             {
                g_Logger.Info("دستور اسکن از داشبورد دریافت شد");
                HandleScanCommand();
             }
             // اگر کلیک روی دکمه حذف همه بود
-            else if(StringFind(objName, "ClearBtn") > 0)
+            else if(StringFind(objName, "BtnClear") >= 0)
             {
                g_Logger.Info("دستور حذف همه از داشبورد دریافت شد");
                if(g_Manager != NULL)

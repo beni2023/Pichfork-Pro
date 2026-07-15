@@ -9,13 +9,10 @@
 
 enum ENUM_PFP_TYPE
 {
-
    PFP_STANDARD = 0,
-
    PFP_SCHIFF = 1,
-
-   PFP_MODIFIED_SCHIFF = 2
-
+   PFP_MODIFIED_SCHIFF = 2,
+   PFP_UNKNOWN = 3
 };
 
 

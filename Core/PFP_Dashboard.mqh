@@ -8,7 +8,7 @@
 #property version   "1.00"
 #property strict
 
-#include "PFP_Logger.mqh"
+#include "../Utils/PFP_Logger.mqh"
 
 //--- Dashboard Constants
 #define DASHBOARD_WIDTH     260
@@ -22,15 +22,15 @@
 #define FONT_SIZE           9
 
 //--- Colors
-clr COLOR_BG_LIGHT      = clrWhite;
-clr COLOR_BG_DARK       = clrBlack;
-clr COLOR_PANEL_BG      = clrDimGray;
-clr COLOR_TEXT_MAIN     = clrWhite;
-clr COLOR_TEXT_SUB      = clrLightGray;
-clr COLOR_BTN_NORMAL    = clrRoyalBlue;
-clr COLOR_BTN_HOVER     = clrDodgerBlue;
-clr COLOR_BTN_ACTIVE    = clrGreen;
-clr COLOR_BTN_DELETE    = clrFirebrick;
+color COLOR_BG_LIGHT      = clrWhite;
+color COLOR_BG_DARK       = clrBlack;
+color COLOR_PANEL_BG      = clrDimGray;
+color COLOR_TEXT_MAIN     = clrWhite;
+color COLOR_TEXT_SUB      = clrLightGray;
+color COLOR_BTN_NORMAL    = clrRoyalBlue;
+color COLOR_BTN_HOVER     = clrDodgerBlue;
+color COLOR_BTN_ACTIVE    = clrGreen;
+color COLOR_BTN_DELETE    = clrFirebrick;
 
 //+------------------------------------------------------------------+
 //| Class CPFP_Dashboard                                             |
@@ -65,11 +65,11 @@ private:
    bool              m_replace_mode;
 
 public:
-   CPFP_Dashboard(CPFP_Logger *logger)
+   CPFP_Dashboard(long chart_id, CPFP_Logger *logger)
    {
       m_logger = logger;
       m_prefix = "PFP_Dash_";
-      m_chart_id = ChartID();
+      m_chart_id = chart_id;
       m_subwin = 0;
       m_is_dark_mode = true;
       m_scan_enabled = true;
@@ -134,19 +134,15 @@ public:
    }
    
    //--- Update Info Labels
-   void UpdateInfo(int count, bool storage_ok)
+   void Update(int count, bool storage_ok)
    {
-      ObjectSetString(m_chart_id, m_status_label, OBJPROP_TEXT, "وضعیت: " + (storage_ok ? "فعال" : "خطا"));
-      ObjectSetInteger(m_chart_id, m_status_label, OBJPROP_COLOR, storage_ok ? clrLime : clrRed);
-      
-      ObjectSetString(m_chart_id, m_count_label, OBJPROP_TEXT, "پیچ‌فورک‌ها: " + IntegerToString(count));
-      ObjectSetInteger(m_chart_id, m_count_label, OBJPROP_COLOR, clrWhite);
-      
-      ObjectSetString(m_chart_id, m_storage_label, OBJPROP_TEXT, "ذخیره‌سازی: " + (storage_ok ? "متصل" : "قطع"));
+      CreateLabel(m_status_label, DASHBOARD_X + 10, DASHBOARD_Y + 25, "وضعیت: " + (storage_ok ? "فعال" : "خطا"), storage_ok ? clrLime : clrRed, 9, false);
+      CreateLabel(m_count_label, DASHBOARD_X + 10, DASHBOARD_Y + 45, "پیچ‌فورک‌ها: " + IntegerToString(count), clrWhite, 9, false);
+      CreateLabel(m_storage_label, DASHBOARD_X + 10, DASHBOARD_Y + 65, "ذخیره‌سازی: " + (storage_ok ? "متصل" : "قطع"), clrLightGray, 8, false);
    }
    
    //--- Handle Mouse Move for Hover Effects
-   bool OnMouseMove(int x, int y)
+   bool CheckHover(int x, int y)
    {
       bool redraw = false;
       
@@ -157,7 +153,6 @@ public:
       if(inside != m_is_mouse_over)
       {
          m_is_mouse_over = inside;
-         // Optional: Highlight border when inside
          redraw = true;
       }
       
@@ -170,12 +165,25 @@ public:
    }
    
    //--- Handle Clicks
-   int OnClick(string clicked_obj)
+   bool ProcessClick(string clicked_obj)
    {
-      if(clicked_obj == m_btn_scan) return 1; // Action: Rescan
-      if(clicked_obj == m_btn_clear) return 2; // Action: Clear All
-      if(clicked_obj == m_btn_toggle_mode) return 3; // Action: Toggle Mode
-      return 0;
+      if(clicked_obj == m_btn_scan) 
+      {
+         g_Logger->Info("Dashboard: Scan button clicked");
+         return true;
+      }
+      if(clicked_obj == m_btn_clear) 
+      {
+         g_Logger->Info("Dashboard: Clear button clicked");
+         return true;
+      }
+      if(clicked_obj == m_btn_toggle_mode) 
+      {
+         m_replace_mode = !m_replace_mode;
+         SetReplaceMode(m_replace_mode);
+         return true;
+      }
+      return false;
    }
    
    //--- Toggle Replace Mode Visuals
