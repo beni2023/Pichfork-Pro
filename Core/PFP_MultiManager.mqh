@@ -237,7 +237,7 @@ public:
       {
          if(m_pitchforks[i].Active())
          {
-            CPFP_GeometryData geo;
+            S_PFP_Geometry geo;
             if(m_geometry.Build(m_pitchforks[i], geo))
             {
                m_renderer.Draw(m_pitchforks[i], geo, RENDER_MODE_FULL);
@@ -331,13 +331,17 @@ public:
          CPFP_PitchforkReader reader;
          CPFP_Pitchfork pf;
          
-         if(reader.ReadFromChart(pfID, pf))
+         if(reader.ReadPoints(pfID, pf))
          {
             // Detect type if not already set
             if(pf.Type() == ENUM_PFP_TYPE_UNKNOWN)
             {
-               ENUM_PFP_TYPE detectedType = m_typeDetector.Detect(pf);
-               pf.SetType(detectedType);
+               S_PFP_Geometry geo;
+               if(m_geometry != NULL && m_geometry.Build(pf, geo))
+               {
+                  SPFP_TypeResult detectedType = m_typeDetector.Detect(geo);
+                  pf.SetType(detectedType.type);
+               }
             }
             
             // Set as active and add to list
@@ -393,7 +397,7 @@ public:
       // Clear storage
       if(m_storage != NULL)
       {
-         m_storage->ClearAll();
+         m_storage.ClearAll();
       }
       
       // Reset count

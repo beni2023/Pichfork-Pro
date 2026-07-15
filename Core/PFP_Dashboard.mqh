@@ -129,7 +129,8 @@ public:
       if(!CreateLabel(m_prefix + "Help", DASHBOARD_X + 10, DASHBOARD_Y + DASHBOARD_HEIGHT - 20, 
                       "کلیدها: S=اسکن, R=ریست, Del=حذف", clrSilver, 8, false)) return false;
       
-      m_logger->Info("Dashboard created successfully");
+      if(m_logger != NULL)
+         m_logger.Info("Dashboard created successfully");
       return true;
    }
    
@@ -169,12 +170,14 @@ public:
    {
       if(clicked_obj == m_btn_scan) 
       {
-         g_Logger->Info("Dashboard: Scan button clicked");
+         if(m_logger != NULL)
+            m_logger.Info("Dashboard: Scan button clicked");
          return true;
       }
       if(clicked_obj == m_btn_clear) 
       {
-         g_Logger->Info("Dashboard: Clear button clicked");
+         if(m_logger != NULL)
+            m_logger.Info("Dashboard: Clear button clicked");
          return true;
       }
       if(clicked_obj == m_btn_toggle_mode) 
