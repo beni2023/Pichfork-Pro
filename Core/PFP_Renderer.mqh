@@ -52,7 +52,7 @@ void Draw(
 
 
    // Validate geometry data
-   if(geo.MedianTime1 == 0 || geo.MedianTime2 == 0)
+   if(geo.MedianTimeStart == 0 || geo.MedianTimeEnd == 0)
    {
       Print("[Renderer Error] Invalid geometry data for ID: ", id);
       return;
@@ -69,10 +69,10 @@ void Draw(
    {
       DrawTrendLine(
                     median_name,
-                    geo.MedianTime1,
-                    geo.MedianPrice1,
-                    geo.MedianTime2,
-                    geo.MedianPrice2,
+                    geo.MedianTimeStart,
+                    geo.MedianPriceStart,
+                    geo.MedianTimeEnd,
+                    geo.MedianPriceEnd,
                     PFP_COLOR_MEDIAN,
                     STYLE_DOT,
                     1,
@@ -87,10 +87,10 @@ void Draw(
    {
       DrawTrendLine(
                     upper_name,
-                    geo.UpperTime1,
-                    geo.UpperPrice1,
-                    geo.UpperTime2,
-                    geo.UpperPrice2,
+                    geo.UpperTimeStart,
+                    geo.UpperPriceStart,
+                    geo.UpperTimeEnd,
+                    geo.UpperPriceEnd,
                     mainColor,
                     STYLE_SOLID,
                     2,
@@ -105,10 +105,10 @@ void Draw(
    {
       DrawTrendLine(
                     lower_name,
-                    geo.LowerTime1,
-                    geo.LowerPrice1,
-                    geo.LowerTime2,
-                    geo.LowerPrice2,
+                    geo.LowerTimeStart,
+                    geo.LowerPriceStart,
+                    geo.LowerTimeEnd,
+                    geo.LowerPriceEnd,
                     mainColor,
                     STYLE_SOLID,
                     2,
@@ -123,10 +123,10 @@ void Draw(
    {
       DrawTrendLine(
                     mid_upper_name,
-                    geo.MidUpperTime1,
-                    geo.MidUpperPrice1,
-                    geo.MidUpperTime2,
-                    geo.MidUpperPrice2,
+                    geo.MidUpperTimeStart,
+                    geo.MidUpperPriceStart,
+                    geo.MidUpperTimeEnd,
+                    geo.MidUpperPriceEnd,
                     clrSilver,
                     STYLE_DASH,
                     1,
@@ -141,10 +141,10 @@ void Draw(
    {
       DrawTrendLine(
                     mid_lower_name,
-                    geo.MidLowerTime1,
-                    geo.MidLowerPrice1,
-                    geo.MidLowerTime2,
-                    geo.MidLowerPrice2,
+                    geo.MidLowerTimeStart,
+                    geo.MidLowerPriceStart,
+                    geo.MidLowerTimeEnd,
+                    geo.MidLowerPriceEnd,
                     clrSilver,
                     STYLE_DASH,
                     1,

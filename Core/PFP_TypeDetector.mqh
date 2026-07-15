@@ -124,7 +124,7 @@ public:
    // -----------------------------------------------------------------
    // تشخیص نوع Pitchfork بر اساس نقاط سه‌گانه
    // -----------------------------------------------------------------
-   SPFP_TypeResult Detect(const SPFP_GeometryData &geometry)
+   SPFP_TypeResult Detect(const S_PFP_Geometry &geometry)
    {
       SPFP_TypeResult result;
       result.type = PFP_UNKNOWN;
@@ -132,7 +132,7 @@ public:
       result.description = "";
       
       // اعتبارسنجی داده‌ها
-      if(geometry.points.time1 == 0 || geometry.points.time2 == 0 || geometry.points.time3 == 0)
+      if(geometry.P1.Time == 0 || geometry.P2.Time == 0 || geometry.P3.Time == 0)
       {
          m_logger.Error("داده‌های نامعتبر برای تشخیص نوع");
          result.description = "داده‌های نامعتبر";
@@ -140,12 +140,12 @@ public:
       }
       
       // استخراج نقاط
-      datetime t1 = geometry.points.time1;
-      double p1 = geometry.points.price1;
-      datetime t2 = geometry.points.time2;
-      double p2 = geometry.points.price2;
-      datetime t3 = geometry.points.time3;
-      double p3 = geometry.points.price3;
+      datetime t1 = geometry.P1.Time;
+      double p1 = geometry.P1.Price;
+      datetime t2 = geometry.P2.Time;
+      double p2 = geometry.P2.Price;
+      datetime t3 = geometry.P3.Time;
+      double p3 = geometry.P3.Price;
       
       // محاسبه ویژگی‌های هندسی
       double ratio = CalculateLengthRatio(t1, p1, t2, p2, t3, p3);

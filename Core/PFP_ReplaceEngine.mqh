@@ -27,11 +27,11 @@ public:
    }
 
    //--------------------------------------------------
-   void SetEngines(CPFP_GeometryEngine &geo, CPFP_Renderer &renderer, CPFP_ObjectManager &objManager)
+   void SetEngines(CPFP_GeometryEngine *geo, CPFP_Renderer *renderer, CPFP_ObjectManager *objManager)
    {
-      m_geometry = &geo;
-      m_renderer = &renderer;
-      m_objManager = &objManager;
+      m_geometry = geo;
+      m_renderer = renderer;
+      m_objManager = objManager;
    }
 
    //--------------------------------------------------

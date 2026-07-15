@@ -19,7 +19,6 @@ private:
    int m_count;
    
    CPFP_Logger *m_logger;
-   CPFP_TypeDetector *m_typeDetector;
    CPFP_Renderer *m_renderer;
    CPFP_GeometryEngine *m_geometry;
    CPFP_MultiStorage *m_storage;
@@ -29,10 +28,9 @@ public:
 
    //--------------------------------------------------
 
-   CPFP_MultiManager(CPFP_Logger *logger, CPFP_TypeDetector *typeDetector)
+   CPFP_MultiManager(CPFP_Logger *logger)
    {
       m_logger = logger;
-      m_typeDetector = typeDetector;
       m_renderer = NULL;
       m_geometry = NULL;
       m_storage = new CPFP_MultiStorage();

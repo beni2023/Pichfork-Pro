@@ -30,7 +30,7 @@ color COLOR_TEXT_SUB      = clrLightGray;
 color COLOR_BTN_NORMAL    = clrRoyalBlue;
 color COLOR_BTN_HOVER     = clrDodgerBlue;
 color COLOR_BTN_ACTIVE    = clrGreen;
-color COLOR_BTN_DELETE    = clrFirebrick;
+color COLOR_BTN_DELETE    = clrBrown;
 
 //+------------------------------------------------------------------+
 //| Class CPFP_Dashboard                                             |
