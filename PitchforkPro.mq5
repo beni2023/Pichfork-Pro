@@ -473,8 +473,31 @@ void ProcessEventQueue()
       {
          int eventType = (int)g_EventQueue[i].lparam;
          
+         // Scan Event
+         if(eventType == PFP_EVENT_SCAN)
+         {
+            g_Logger.Info("Scan requested from GUI");
+            HandleScanCommand();
+         }
+         // Replace Event
+         else if(eventType == PFP_EVENT_REPLACE)
+         {
+            g_Logger.Info("Replace requested from GUI");
+            HandleReplaceCommand();
+         }
+         // Clear Event
+         else if(eventType == PFP_EVENT_CLEAR)
+         {
+            g_Logger.Info("Clear all requested from GUI");
+            if(g_Manager != NULL)
+            {
+               g_Manager.RemoveAll();
+               g_SelectedPitchforkID = "";
+               Comment("");
+            }
+         }
          // Toggle Color Event
-         if(eventType == PFP_EVENT_TOGGLE_COLOR)
+         else if(eventType == PFP_EVENT_TOGGLE_COLOR)
          {
             g_Logger.Info("Toggle fork color requested");
             // Toggle logic: switch between bullish (dark green) and bearish (red)
@@ -499,9 +522,9 @@ void ProcessEventQueue()
                   }
                   // Update the pitchfork in manager array directly and re-render
                   CPFP_Pitchfork tempPf;
-                  for(int i = 0; i < g_Manager.GetCount(); i++)
+                  for(int j = 0; j < g_Manager.GetCount(); j++)
                   {
-                     if(g_Manager.Get(i, tempPf) && tempPf.ID() == pf.ID())
+                     if(g_Manager.Get(j, tempPf) && tempPf.ID() == pf.ID())
                      {
                         // Remove old and add updated
                         g_Manager.RemovePitchfork(pf.ID());

@@ -23,8 +23,7 @@ bool FindPitchfork(CPFP_Pitchfork &pitchfork)
 
 
    int total=
-      ObjectsTotal(
-                   0,
+      ObjectsTotal(ChartID(),
                    -1,
                    -1
                   );
@@ -36,8 +35,7 @@ bool FindPitchfork(CPFP_Pitchfork &pitchfork)
 
 
       string name=
-         ObjectName(
-                    0,
+         ObjectName(ChartID(),
                     i,
                     -1,
                     -1
@@ -53,8 +51,7 @@ bool FindPitchfork(CPFP_Pitchfork &pitchfork)
 
       ENUM_OBJECT type=
          (ENUM_OBJECT)
-         ObjectGetInteger(
-                          0,
+         ObjectGetInteger(ChartID(),
                           name,
                           OBJPROP_TYPE
                          );
@@ -153,68 +150,30 @@ bool ReadPoints(
 {
 
 
-   datetime t0=
-      (datetime)
-      ObjectGetInteger(
-                       0,
-                       name,
-                       OBJPROP_TIME,
-                       0
-                      );
+   long chartID = ChartID();
+   datetime t0 = (datetime)ObjectGetInteger(chartID, name, OBJPROP_TIME, 0);
 
 
 
-   datetime t1=
-      (datetime)
-      ObjectGetInteger(
-                       0,
-                       name,
-                       OBJPROP_TIME,
-                       1
-                      );
+   datetime t1 = (datetime)ObjectGetInteger(chartID, name, OBJPROP_TIME, 1);
 
 
 
-   datetime t2=
-      (datetime)
-      ObjectGetInteger(
-                       0,
-                       name,
-                       OBJPROP_TIME,
-                       2
-                      );
+   datetime t2 = (datetime)ObjectGetInteger(chartID, name, OBJPROP_TIME, 2);
 
 
 
 
 
-   double p0=
-      ObjectGetDouble(
-                      0,
-                      name,
-                      OBJPROP_PRICE,
-                      0
-                     );
+   double p0 = ObjectGetDouble(chartID, name, OBJPROP_PRICE, 0);
 
 
 
-   double p1=
-      ObjectGetDouble(
-                      0,
-                      name,
-                      OBJPROP_PRICE,
-                      1
-                     );
+   double p1 = ObjectGetDouble(chartID, name, OBJPROP_PRICE, 1);
 
 
 
-   double p2=
-      ObjectGetDouble(
-                      0,
-                      name,
-                      OBJPROP_PRICE,
-                      2
-                     );
+   double p2 = ObjectGetDouble(chartID, name, OBJPROP_PRICE, 2);
 
 
 

@@ -97,14 +97,15 @@ public:
    int ScanAllPitchforks(string &outIDs[])
    {
       int found = 0;
-      int total = ObjectsTotal(0,-1,OBJ_PITCHFORK);
+      long chartID = ChartID();
+      int total = ObjectsTotal(chartID,-1,OBJ_PITCHFORK);
       
       // Clear output array
       ArrayResize(outIDs, 0);
       
       for(int i = 0; i < total; i++)
       {
-         string name = ObjectName(0,i,-1,-1);
+         string name = ObjectName(chartID,i,-1,-1);
          
          if(name == "")
             continue;
@@ -113,7 +114,7 @@ public:
          if(StringFind(name, PFP_PREFIX) == 0)
             continue;
             
-         ENUM_OBJECT type = (ENUM_OBJECT)ObjectGetInteger(0, name, OBJPROP_TYPE);
+         ENUM_OBJECT type = (ENUM_OBJECT)ObjectGetInteger(chartID, name, OBJPROP_TYPE);
          
          if(type != OBJ_PITCHFORK)
             continue;
