@@ -110,7 +110,8 @@ PFP_GUI::PFP_GUI(CPFP_MultiManager *manager)
 {
    m_manager = manager;
    m_prefix = "PFP_GUI_";
-   m_panel_id = (int)TimeCurrent();
+   // استفاده از TimeLocal برای جلوگیری از هشدار تبدیل نوع
+   m_panel_id = (int)(TimeLocal() % 2147483647);
    m_is_visible = false;
    
    // موقعیت پیش‌فرض (گوشه بالا راست)
