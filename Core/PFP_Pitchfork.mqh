@@ -394,14 +394,6 @@ ENUM_PFP_DIRECTION GetDirection()
 
 }
 
-void SetDirection(ENUM_PFP_DIRECTION dir)
-{
-
-   m_direction = dir;
-
-}
-
-
 
 
 
