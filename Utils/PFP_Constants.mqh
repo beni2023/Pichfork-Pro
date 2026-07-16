@@ -70,6 +70,9 @@ enum ENUM_PFP_DIRECTION
 #define PFP_EVENT_REPLACE 1002
 #define PFP_EVENT_CLEAR 1003
 #define PFP_EVENT_TOGGLE 1004
+#define PFP_EVENT_TOGGLE_COLOR 1005
+#define PFP_EVENT_TOGGLE_WARNING 1006
+#define PFP_EVENT_TOGGLE_QUARTER 1007
 
 //==================================================
 // Build Version

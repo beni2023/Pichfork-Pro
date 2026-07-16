@@ -61,9 +61,13 @@ void Draw(
 
    color mainColor = pf.GetColor();
    int line_idx = 0;
+   
+   // Check if warning lines and quarter lines should be shown (global flags)
+   bool showWarningLines = true;  // Will be controlled by GUI button
+   bool showQuarterLines = true;  // Will be controlled by GUI button
 
 
-   // 1. Median Line (Red, Dotted)
+   // 1. Median Line (Gold, Dotted) - Main Fork Line must be solid per requirement
    string median_name = GenerateObjectName(id, line_idx++);
    if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(median_name))
    {
@@ -74,8 +78,8 @@ void Draw(
                     geo.MedianTimeEnd,
                     geo.MedianPriceEnd,
                     PFP_COLOR_MEDIAN,
-                    STYLE_DOT,
-                    1,
+                    STYLE_SOLID,  // Changed to SOLID as per requirement
+                    2,            // Width 2 for visibility
                     true  // Selectable
                    );
    }
@@ -117,7 +121,25 @@ void Draw(
    }
 
 
-   // 4. Mid Upper Line (Silver, Dashed)
+   // 4. Stem Line - From Pivot B to C (Main Color, Solid)
+   string stem_name = GenerateObjectName(id, line_idx++);
+   if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(stem_name))
+   {
+      DrawTrendLine(
+                    stem_name,
+                    pf.TimeB(),
+                    pf.PriceB(),
+                    pf.TimeC(),
+                    pf.PriceC(),
+                    mainColor,
+                    STYLE_SOLID,
+                    2,
+                    false  // Not selectable (helper line)
+                   );
+   }
+
+
+   // 5. Mid Upper Line (Silver, Dashed)
    string mid_upper_name = GenerateObjectName(id, line_idx++);
    if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(mid_upper_name))
    {
@@ -135,7 +157,7 @@ void Draw(
    }
 
 
-   // 5. Mid Lower Line (Silver, Dashed)
+   // 6. Mid Lower Line (Silver, Dashed)
    string mid_lower_name = GenerateObjectName(id, line_idx++);
    if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(mid_lower_name))
    {
@@ -150,6 +172,101 @@ void Draw(
                     1,
                     false  // Not selectable (helper line)
                    );
+   }
+
+
+   // 7-9. Warning Lines (3 lines - OrangeRed, Dotted) - Hide/Show controlled
+   if(showWarningLines)
+   {
+      // Warning Line 1 (1/8 above upper)
+      string warn1_name = GenerateObjectName(id, line_idx++);
+      if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(warn1_name))
+      {
+         DrawTrendLine(
+                       warn1_name,
+                       geo.UpperTimeStart,
+                       geo.UpperPriceStart + (geo.UpperPriceEnd - geo.UpperPriceStart) * 0.125,
+                       geo.UpperTimeEnd,
+                       geo.UpperPriceEnd + (geo.UpperPriceEnd - geo.UpperPriceStart) * 0.125,
+                       PFP_COLOR_BEAR,  // Red for warning
+                       STYLE_DOT,
+                       1,
+                       false
+                      );
+      }
+      
+      // Warning Line 2 (1/8 below lower)
+      string warn2_name = GenerateObjectName(id, line_idx++);
+      if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(warn2_name))
+      {
+         DrawTrendLine(
+                       warn2_name,
+                       geo.LowerTimeStart,
+                       geo.LowerPriceStart - (geo.LowerPriceEnd - geo.LowerPriceStart) * 0.125,
+                       geo.LowerTimeEnd,
+                       geo.LowerPriceEnd - (geo.LowerPriceEnd - geo.LowerPriceStart) * 0.125,
+                       PFP_COLOR_BEAR,  // Red for warning
+                       STYLE_DOT,
+                       1,
+                       false
+                      );
+      }
+      
+      // Warning Line 3 (Median extension warning)
+      string warn3_name = GenerateObjectName(id, line_idx++);
+      if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(warn3_name))
+      {
+         DrawTrendLine(
+                       warn3_name,
+                       geo.MedianTimeStart,
+                       geo.MedianPriceStart,
+                       geo.MedianTimeEnd,
+                       geo.MedianPriceEnd,
+                       PFP_COLOR_BEAR,  // Red for warning
+                       STYLE_DOT,
+                       1,
+                       false
+                      );
+      }
+   }
+
+
+   // 10-11. Quarter Lines (1/4 and 3/4 - Purple, Dashed) - Hide/Show controlled
+   if(showQuarterLines)
+   {
+      // Quarter Line 1 (1/4 between median and upper)
+      string quarter1_name = GenerateObjectName(id, line_idx++);
+      if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(quarter1_name))
+      {
+         DrawTrendLine(
+                       quarter1_name,
+                       geo.MedianTimeStart,
+                       geo.MedianPriceStart + (geo.UpperPriceStart - geo.MedianPriceStart) * 0.25,
+                       geo.MedianTimeEnd,
+                       geo.MedianPriceEnd + (geo.UpperPriceEnd - geo.MedianPriceEnd) * 0.25,
+                       clrPurple,
+                       STYLE_DASH,
+                       1,
+                       false
+                      );
+      }
+      
+      // Quarter Line 2 (3/4 between median and upper)
+      string quarter2_name = GenerateObjectName(id, line_idx++);
+      if(mode != RENDER_MODE_UPDATE_ONLY || ObjectExists(quarter2_name))
+      {
+         DrawTrendLine(
+                       quarter2_name,
+                       geo.MedianTimeStart,
+                       geo.MedianPriceStart + (geo.UpperPriceStart - geo.MedianPriceStart) * 0.75,
+                       geo.MedianTimeEnd,
+                       geo.MedianPriceEnd + (geo.UpperPriceEnd - geo.MedianPriceEnd) * 0.75,
+                       clrPurple,
+                       STYLE_DASH,
+                       1,
+                       false
+                      );
+      }
    }
 
 

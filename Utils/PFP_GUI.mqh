@@ -35,6 +35,9 @@ private:
    string m_clear_btn_name;
    string m_close_btn_name;
    string m_status_label_name;
+   string m_color_toggle_btn_name;
+   string m_warning_lines_btn_name;
+   string m_quarter_lines_btn_name;
    int m_panel_current_x;
    int m_panel_target_x;
    int m_panel_closed_x;
@@ -79,6 +82,9 @@ CPFP_GUI::CPFP_GUI(long chart_id, CPFP_Logger *logger)
    m_clear_btn_name = m_base_name + "ClearBtn";
    m_close_btn_name = m_base_name + "CloseBtn";
    m_status_label_name = m_base_name + "Status";
+   m_color_toggle_btn_name = m_base_name + "ColorToggleBtn";
+   m_warning_lines_btn_name = m_base_name + "WarningLinesBtn";
+   m_quarter_lines_btn_name = m_base_name + "QuarterLinesBtn";
    m_panel_current_x = -PANEL_WIDTH;
    m_panel_closed_x = -PANEL_WIDTH;
    m_panel_open_x = 0;
@@ -150,6 +156,9 @@ void CPFP_GUI::TogglePanel()
       ObjectDelete(0, m_clear_btn_name);
       ObjectDelete(0, m_close_btn_name);
       ObjectDelete(0, m_status_label_name);
+      ObjectDelete(0, m_color_toggle_btn_name);
+      ObjectDelete(0, m_warning_lines_btn_name);
+      ObjectDelete(0, m_quarter_lines_btn_name);
       ObjectSetInteger(0, m_main_btn_name, OBJPROP_HIDDEN, false);
       if(m_logger) m_logger.Log("Panel collapsed", LOG_LEVEL_INFO);
    }
@@ -181,6 +190,21 @@ void CPFP_GUI::OnChartEvent(const int id, const long &lparam, const string &spar
          EventChartCustom(m_chart_id, PFP_EVENT_CLEAR, 0, 0, "CLEAR");
          ObjectSetInteger(0, m_clear_btn_name, OBJPROP_STATE, false);
          if(m_logger) m_logger.Log("Clear all requested", LOG_LEVEL_INFO);
+      }
+      else if(sparam == m_color_toggle_btn_name) {
+         EventChartCustom(m_chart_id, PFP_EVENT_TOGGLE_COLOR, 0, 0, "TOGGLE_COLOR");
+         ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_STATE, false);
+         if(m_logger) m_logger.Log("Toggle fork color requested", LOG_LEVEL_INFO);
+      }
+      else if(sparam == m_warning_lines_btn_name) {
+         EventChartCustom(m_chart_id, PFP_EVENT_TOGGLE_WARNING, 0, 0, "TOGGLE_WARNING");
+         ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_STATE, false);
+         if(m_logger) m_logger.Log("Toggle warning lines requested", LOG_LEVEL_INFO);
+      }
+      else if(sparam == m_quarter_lines_btn_name) {
+         EventChartCustom(m_chart_id, PFP_EVENT_TOGGLE_QUARTER, 0, 0, "TOGGLE_QUARTER");
+         ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_STATE, false);
+         if(m_logger) m_logger.Log("Toggle quarter lines requested", LOG_LEVEL_INFO);
       }
    }
 }
@@ -289,12 +313,60 @@ bool CPFP_GUI::CreateButtons()
       ObjectSetInteger(0, btnNames[i], OBJPROP_SELECTABLE, false);
    }
    
+   // Color Toggle Button
+   if(!ObjectCreate(0, m_color_toggle_btn_name, OBJ_BUTTON)) {
+      return false;
+   }
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_XDISTANCE, startX);
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_YDISTANCE, startY + (3 * (btnHeight + 8)) + 5);
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_XSIZE, btnWidth);
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_YSIZE, btnHeight);
+   ObjectSetString(0, m_color_toggle_btn_name, OBJPROP_TEXT, "🎨 Toggle Bull/Bear Color");
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_COLOR, PFP_COLOR_TEXT);
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_BGCOLOR, clrDarkGreen);
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_BORDER_COLOR, PFP_COLOR_BORDER);
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_FONTSIZE, 9);
+   ObjectSetString(0, m_color_toggle_btn_name, OBJPROP_FONT, "Arial");
+   ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_SELECTABLE, false);
+   
+   // Warning Lines Toggle Button
+   if(!ObjectCreate(0, m_warning_lines_btn_name, OBJ_BUTTON)) {
+      return false;
+   }
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_XDISTANCE, startX);
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_YDISTANCE, startY + (4 * (btnHeight + 8)) + 5);
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_XSIZE, btnWidth);
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_YSIZE, btnHeight);
+   ObjectSetString(0, m_warning_lines_btn_name, OBJPROP_TEXT, "⚠️ Show/Hide Warning Lines");
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_COLOR, PFP_COLOR_TEXT);
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_BGCOLOR, clrOrangeRed);
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_BORDER_COLOR, PFP_COLOR_BORDER);
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_FONTSIZE, 9);
+   ObjectSetString(0, m_warning_lines_btn_name, OBJPROP_FONT, "Arial");
+   ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_SELECTABLE, false);
+   
+   // Quarter Lines Toggle Button
+   if(!ObjectCreate(0, m_quarter_lines_btn_name, OBJ_BUTTON)) {
+      return false;
+   }
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_XDISTANCE, startX);
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_YDISTANCE, startY + (5 * (btnHeight + 8)) + 5);
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_XSIZE, btnWidth);
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_YSIZE, btnHeight);
+   ObjectSetString(0, m_quarter_lines_btn_name, OBJPROP_TEXT, "📏 Show/Hide Quarter Lines");
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_COLOR, PFP_COLOR_TEXT);
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_BGCOLOR, clrPurple);
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_BORDER_COLOR, PFP_COLOR_BORDER);
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_FONTSIZE, 9);
+   ObjectSetString(0, m_quarter_lines_btn_name, OBJPROP_FONT, "Arial");
+   ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_SELECTABLE, false);
+   
    if(!ObjectCreate(0, m_status_label_name, OBJ_LABEL)) {
       return false;
    }
    
    ObjectSetInteger(0, m_status_label_name, OBJPROP_XDISTANCE, startX);
-   ObjectSetInteger(0, m_status_label_name, OBJPROP_YDISTANCE, startY + (3 * (btnHeight + 8)) + 10);
+   ObjectSetInteger(0, m_status_label_name, OBJPROP_YDISTANCE, startY + (6 * (btnHeight + 8)) + 15);
    ObjectSetString(0, m_status_label_name, OBJPROP_TEXT, "Ready");
    ObjectSetInteger(0, m_status_label_name, OBJPROP_COLOR, PFP_COLOR_TEXT_SECONDARY);
    ObjectSetInteger(0, m_status_label_name, OBJPROP_FONTSIZE, 8);
@@ -317,4 +389,7 @@ void CPFP_GUI::DeleteAllObjects()
    ObjectDelete(0, m_clear_btn_name);
    ObjectDelete(0, m_close_btn_name);
    ObjectDelete(0, m_status_label_name);
+   ObjectDelete(0, m_color_toggle_btn_name);
+   ObjectDelete(0, m_warning_lines_btn_name);
+   ObjectDelete(0, m_quarter_lines_btn_name);
 }
