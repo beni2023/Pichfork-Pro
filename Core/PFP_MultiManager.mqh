@@ -9,8 +9,12 @@
 #include "PFP_ReplaceEngine.mqh"
 #include "PFP_TypeDetector.mqh"
 #include "PFP_ObjectScanner.mqh"
+#include "PFP_Dashboard.mqh"
 #include "../Utils/PFP_Logger.mqh"
 #include "../Utils/PFP_Constants.mqh"
+
+// Forward declaration (g_Dashboard is global in main file)
+extern CPFP_Dashboard *g_Dashboard;
 
 class CPFP_MultiManager
 {
