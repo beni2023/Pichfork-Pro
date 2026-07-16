@@ -24,7 +24,7 @@
 #include "Core/PFP_ReplaceEngine.mqh"
 #include "Core/PFP_MultiManager.mqh"
 #include "Core/PFP_TypeDetector.mqh"
-#include "Core/PFP_Dashboard.mqh"
+// #include "Core/PFP_Dashboard.mqh"  // حذف شد - فقط از GUI استفاده می‌کنیم
 
 #include "Utils/PFP_GUI.mqh"
 
@@ -57,10 +57,10 @@ CPFP_TypeDetector  *g_TypeDetector = NULL;
 CPFP_Renderer      *g_Renderer = NULL;
 CPFP_GeometryEngine *g_Geometry = NULL;
 CPFP_GUI           *g_GUI = NULL;          // مدیر رابط کاربری گرافیکی
-CPFP_Dashboard     *g_Dashboard = NULL;    // داشبورد حرفه‌ای
+// CPFP_Dashboard     *g_Dashboard = NULL;    // داشبورد حرفه‌ای - حذف شد، فقط از GUI استفاده می‌کنیم
 
-// تعریف برای دسترسی در فایل‌های دیگر (extern)
-// MultiManager به g_Dashboard نیاز دارد - در PFP_MultiManager.mqh تعریف شده
+// تعریف برای دسترسی در فایل‌های دیگر (extern) - حذف شد
+// MultiManager دیگر به g_Dashboard نیاز ندارد
 
 //--- وضعیت‌های سیستم
 bool g_IsProcessing = false;          // قفل پردازش برای جلوگیری از تداخل
@@ -189,18 +189,9 @@ int OnInit()
       g_Logger.Info("رابط کاربری گرافیکی با موفقیت راه‌اندازی شد.");
    }
 
-   //--- ایجاد داشبورد حرفه‌ای
-   g_Dashboard = new CPFP_Dashboard(ChartID(), g_Logger);
-   if(g_Dashboard == NULL)
-   {
-      g_Logger.Error("خطا در ایجاد Dashboard");
-      // ادامه می‌دهیم چون داشبورد حیاتی نیست
-   }
-   else
-   {
-      g_Dashboard.Create();
-      g_Logger.Info("داشبورد حرفه‌ای با موفقیت ایجاد شد.");
-   }
+   //--- ایجاد داشبورد حرفه‌ای - حذف شد چون از GUI استفاده می‌کنیم
+   // تمام قابلیت‌ها در یک پنل GUI متمرکز شده‌اند
+   // g_Dashboard = NULL;  // دیگر نیازی به داشبورد جداگانه نیست
 
    //--- بارگذاری داده‌های ذخیره شده
    if(!g_Manager.LoadAll())
@@ -228,11 +219,12 @@ void OnDeinit(const int reason)
    if(g_Logger != NULL)
       g_Logger.Info("خاموش کردن اندیکاتور. دلیل: " + IntegerToString(reason));
    
-   //--- مخفی کردن و پاکسازی داشبورد
-   if(g_Dashboard != NULL)
-   {
-      delete g_Dashboard;
-   }
+   //--- مخفی کردن و پاکسازی داشبورد - دیگر استفاده نمی‌شود
+   // اگر در آینده نیاز بود، دوباره فعال شود
+   // if(g_Dashboard != NULL)
+   // {
+   //    delete g_Dashboard;
+   // }
    
    //--- مخفی کردن و پاکسازی GUI
    if(g_GUI != NULL)
@@ -304,13 +296,13 @@ int OnCalculate(const int rates_total,
       g_Manager.RenderAllActive();
    }
    
-   //--- بروزرسانی داشبورد
-   if(g_Dashboard != NULL && g_Manager != NULL)
-   {
-      int count = g_Manager.GetCount();
-      bool storage_ok = true; // فرض بر سالم بودن
-      g_Dashboard.Update(count, storage_ok);
-   }
+   //--- بروزرسانی داشبورد - حذف شد (از GUI استفاده می‌کنیم)
+   // if(g_Dashboard != NULL && g_Manager != NULL)
+   // {
+   //    int count = g_Manager.GetCount();
+   //    bool storage_ok = true;
+   //    g_Dashboard.Update(count, storage_ok);
+   // }
 
    //--- پردازش رویدادهای صف
    ProcessEventQueue();
@@ -328,34 +320,31 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
 {
-   //--- پردازش رویدادهای داشبورد
+   //--- پردازش رویدادهای داشبورد - حذف شد (از GUI استفاده می‌کنیم)
+   // تمام رویدادها توسط GUI پردازش می‌شوند
+   /*
    if(g_Dashboard != NULL && id == CHARTEVENT_MOUSE_MOVE)
    {
       int x = (int)lparam;
       int y = (int)dparam;
       if(g_Dashboard.CheckHover(x, y))
       {
-         ChartRedraw(); // رسم مجدد برای افکت‌های Hover
+         ChartRedraw();
       }
    }
    
-   //--- پردازش کلیک روی دکمه‌های داشبورد
    if(g_Dashboard != NULL && id == CHARTEVENT_OBJECT_CLICK)
    {
       string objName = sparam;
-      
-      // بررسی اینکه آیا کلیک مربوط به دکمه‌های داشبورد است
       if(StringFind(objName, "PFP_Dash_") >= 0)
       {
          if(g_Dashboard.ProcessClick(objName))
          {
-            // اگر کلیک روی دکمه اسکن بود
             if(StringFind(objName, "BtnScan") >= 0)
             {
                g_Logger.Info("دستور اسکن از داشبورد دریافت شد");
                HandleScanCommand();
             }
-            // اگر کلیک روی دکمه حذف همه بود
             else if(StringFind(objName, "BtnClear") >= 0)
             {
                g_Logger.Info("دستور حذف همه از داشبورد دریافت شد");
@@ -366,11 +355,11 @@ void OnChartEvent(const int id,
                   Comment("");
                }
             }
-            // اگر کلیک روی دکمه Toggle بود (باز/بسته کردن) - توسط خود Dashboard پردازش شده
             ChartRedraw();
          }
       }
    }
+   */
    
    //--- ارسال رویداد به GUI برای پردازش
    if(g_GUI != NULL)
@@ -599,16 +588,15 @@ void HandleScanCommand()
       g_Manager.ScanAndStoreAll();
       g_Manager.RenderAllActive();
       
-      // بروزرسانی GUI اگر فعال است
-      {
-      }
+      // بروزرسانی GUI اگر فعال است - اکنون فقط از GUI استفاده می‌کنیم
+      // داشبورد حذف شده است
       
-      // بروزرسانی داشبورد
-      if(g_Dashboard != NULL)
-      {
-         int count = g_Manager.GetCount();
-         g_Dashboard.Update(count, true);
-      }
+      // بروزرسانی داشبورد - حذف شد (از GUI استفاده می‌کنیم)
+      // if(g_Dashboard != NULL)
+      // {
+      //    int count = g_Manager.GetCount();
+      //    g_Dashboard.Update(count, true);
+      // }
    }
    
    g_Logger.Info("اسکن انجام شد.");
@@ -627,8 +615,9 @@ void HandleReplaceCommand()
    // جایگزینی تمام پیچ‌فورک‌های استاندارد با نسخه پیشرفته
    if(g_Manager != NULL)
    {
-      // بررسی حالت جایگزینی از داشبورد
-      bool useReplaceMode = (g_Dashboard != NULL && g_Dashboard.IsReplaceMode());
+      // بررسی حالت جایگزینی - فعلاً همیشه از حالت اسکن کامل استفاده می‌کنیم
+      // داشبورد حذف شده است، بنابراین useReplaceMode همیشه false است
+      bool useReplaceMode = false;
       
       if(useReplaceMode)
       {
@@ -644,16 +633,12 @@ void HandleReplaceCommand()
       
       g_Manager.RenderAllActive();
       
-      // بروزرسانی GUI اگر فعال است
-      {
-      }
-      
-      // بروزرسانی داشبورد
-      if(g_Dashboard != NULL)
-      {
-         int count = g_Manager.GetCount();
-         g_Dashboard.Update(count, true);
-      }
+      // بروزرسانی داشبورد - حذف شد (از GUI استفاده می‌کنیم)
+      // if(g_Dashboard != NULL)
+      // {
+      //    int count = g_Manager.GetCount();
+      //    g_Dashboard.Update(count, true);
+      // }
    }
    
    g_Logger.Info("جایگزینی انجام شد.");
