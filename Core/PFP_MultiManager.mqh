@@ -8,6 +8,7 @@
 #include "PFP_ObjectManager.mqh"
 #include "PFP_ReplaceEngine.mqh"
 #include "PFP_TypeDetector.mqh"
+#include "PFP_ObjectScanner.mqh"
 #include "../Utils/PFP_Logger.mqh"
 #include "../Utils/PFP_Constants.mqh"
 

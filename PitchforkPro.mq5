@@ -6,7 +6,7 @@
 #property indicator_chart_window
 #property strict
 #property indicator_plots 0
-#property version   "1.00"
+#property version   "1.000"
 #property description "اندیکاتور پیشرفته چنگال اندروز با قابلیت ذخیره‌سازی، جایگزینی و تشخیص هوشمند - نسخه اصلاح شده 1.0.1"
 
 
