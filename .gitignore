@@ -1,21 +1,26 @@
 ```
-# Compiled and binary files
-*.mqh
-*.mq5
-*.ex5
-*.ex4
-*.fxt
-*.gh5
-*.hst
-*.csv
-*.log
+# Compiled/Binary files
+*.pyc
+*.class
+*.o
+*.exe
+*.dll
+*.so
+*.a
+*.obj
+*.out
 
-# Dependencies and build artifacts
-include/
-Libraries/
-tester/
-history/
-logs/
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+dist/
+build/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
 
 # Editor/IDE files
 .vscode/
@@ -24,14 +29,15 @@ logs/
 *.swo
 *.tmp
 
-# Environment and system files
+# System/Environment files
+.DS_Store
+Thumbs.db
 .env
 .env.local
 *.env.*
-.DS_Store
-Thumbs.db
 
-# Coverage and testing
+# Logs and coverage
+*.log
 coverage/
 htmlcov/
 .coverage

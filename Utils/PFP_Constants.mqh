@@ -2,8 +2,7 @@
 #define PFP_CONSTANTS_MQH
 
 // Include standard library for CORNER constants
-#import <stdlib.mqh>
-#import
+#include <stdlib.mqh>
 
 //==================================================
 // Pitchfork Types
@@ -77,6 +76,16 @@ enum ENUM_PFP_DIRECTION
 #define PFP_EVENT_TOGGLE_COLOR 1005
 #define PFP_EVENT_TOGGLE_WARNING 1006
 #define PFP_EVENT_TOGGLE_QUARTER 1007
+
+//==================================================
+// GUI Theme
+//==================================================
+
+enum ENUM_PFP_THEME
+{
+   THEME_LIGHT = 0,
+   THEME_DARK = 1
+};
 
 //==================================================
 // Build Version
