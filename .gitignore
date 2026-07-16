@@ -1,35 +1,25 @@
 ```
-# Compiled and binary files
+# Compiled files
 *.mqh
 *.mq5
 
-# MetaQuotes specific
-*.ex4
+# Build artifacts
 *.ex5
-*.fxt
-*.hst
-*.csv
+*.ex4
+
+# Dependencies
+include/
+
+# Logs and temp files
 *.log
-
-# Dependencies and build artifacts
-MQL4/
-MQL5/
-tester/
-history/
-profiles/
-templates/
-
-# Editor/IDE
-.vscode/
-.idea/
-*.swp
-*.swo
 *.tmp
 
-# System files
-.DS_Store
-Thumbs.db
+# Editors
+.vscode/
+.idea/
 
-# Logs
-*.log
+# Environment
+.env
+.env.local
+*.env.*
 ```
