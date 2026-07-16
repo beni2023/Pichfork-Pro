@@ -21,9 +21,18 @@ enum ENUM_PFP_RENDER_MODE
 
 class CPFP_Renderer
 {
+private:
+   bool m_showWarningLines;
+   bool m_showQuarterLines;
 
 
 public:
+   CPFP_Renderer() : m_showWarningLines(true), m_showQuarterLines(true) {}
+   
+   void SetShowWarningLines(bool show) { m_showWarningLines = show; }
+   void SetShowQuarterLines(bool show) { m_showQuarterLines = show; }
+   bool GetShowWarningLines() const { return m_showWarningLines; }
+   bool GetShowQuarterLines() const { return m_showQuarterLines; }
 
 
 //==================================================
@@ -62,9 +71,9 @@ void Draw(
    color mainColor = pf.GetColor();
    int line_idx = 0;
    
-   // Check if warning lines and quarter lines should be shown (global flags)
-   bool showWarningLines = true;  // Will be controlled by GUI button
-   bool showQuarterLines = true;  // Will be controlled by GUI button
+   // Use member variables for warning and quarter lines visibility
+   bool showWarningLines = m_showWarningLines;
+   bool showQuarterLines = m_showQuarterLines;
 
 
    // 1. Median Line (Gold, Dotted) - Main Fork Line must be solid per requirement

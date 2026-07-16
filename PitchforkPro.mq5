@@ -479,6 +479,81 @@ void ProcessEventQueue()
    
    for(int i = 0; i < g_EventQueueSize; i++)
    {
+      //--- پردازش رویدادهای سفارشی از GUI
+      if(g_EventQueue[i].type == CHARTEVENT_CUSTOM)
+      {
+         int eventType = (int)g_EventQueue[i].lparam;
+         
+         // Toggle Color Event
+         if(eventType == PFP_EVENT_TOGGLE_COLOR)
+         {
+            g_Logger.Info("Toggle fork color requested");
+            // Toggle logic: switch between bullish (dark green) and bearish (red)
+            if(g_Manager != NULL && g_Manager.GetCount() > 0)
+            {
+               // Get the last pitchfork (most recently added)
+               int lastIndex = g_Manager.GetCount() - 1;
+               CPFP_Pitchfork pf;
+               if(g_Manager.Get(lastIndex, pf))
+               {
+                  color currentColor = pf.GetColor();
+                  // Toggle between bull (dark green) and bear (red)
+                  if(currentColor == PFP_COLOR_BULL)
+                  {
+                     pf.SetColor(PFP_COLOR_BEAR);
+                     g_Logger.Info("Fork color changed to BEARISH (Red)");
+                  }
+                  else
+                  {
+                     pf.SetColor(PFP_COLOR_BULL);
+                     g_Logger.Info("Fork color changed to BULLISH (Dark Green)");
+                  }
+                  // Update the pitchfork in manager array directly and re-render
+                  CPFP_Pitchfork tempPf;
+                  for(int i = 0; i < g_Manager.GetCount(); i++)
+                  {
+                     if(g_Manager.Get(i, tempPf) && tempPf.ID() == pf.ID())
+                     {
+                        // Remove old and add updated
+                        g_Manager.RemovePitchfork(pf.ID());
+                        g_Manager.Add(pf);
+                        break;
+                     }
+                  }
+                  g_Manager.RenderAllActive();
+               }
+            }
+         }
+         // Toggle Warning Lines Event
+         else if(eventType == PFP_EVENT_TOGGLE_WARNING)
+         {
+            g_Logger.Info("Toggle warning lines requested");
+            if(g_Renderer != NULL)
+            {
+               bool current = g_Renderer.GetShowWarningLines();
+               g_Renderer.SetShowWarningLines(!current);
+               g_Logger.Info("Warning lines now: " + (!current ? "VISIBLE" : "HIDDEN"));
+               // Re-render all pitchforks to apply changes
+               if(g_Manager != NULL)
+                  g_Manager.RenderAllActive();
+            }
+         }
+         // Toggle Quarter Lines Event
+         else if(eventType == PFP_EVENT_TOGGLE_QUARTER)
+         {
+            g_Logger.Info("Toggle quarter lines requested");
+            if(g_Renderer != NULL)
+            {
+               bool current = g_Renderer.GetShowQuarterLines();
+               g_Renderer.SetShowQuarterLines(!current);
+               g_Logger.Info("Quarter lines now: " + (!current ? "VISIBLE" : "HIDDEN"));
+               // Re-render all pitchforks to apply changes
+               if(g_Manager != NULL)
+                  g_Manager.RenderAllActive();
+            }
+         }
+      }
+      
       //--- پردازش رویدادهای ذخیره شده در صف
       //--- در حال حاضر فقط برای لاگ و آمار استفاده می‌شود
       if(g_Logger.IsEnabled(LOG_LEVEL_DEBUG))

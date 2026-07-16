@@ -375,6 +375,32 @@ color GetColor()
 
 }
 
+void SetColor(color clr)
+{
+
+   m_color = clr;
+
+}
+
+
+//--------------------------------------------------
+// Direction
+//--------------------------------------------------
+
+ENUM_PFP_DIRECTION GetDirection()
+{
+
+   return m_direction;
+
+}
+
+void SetDirection(ENUM_PFP_DIRECTION dir)
+{
+
+   m_direction = dir;
+
+}
+
 
 
 
