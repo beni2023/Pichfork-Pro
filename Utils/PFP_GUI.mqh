@@ -48,26 +48,21 @@ public:
    bool Initialize();
    void Deinitialize();
    void TogglePanel();
-   void ExpandPanel();
-   void CollapsePanel();
-   void OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam);
-   void OnTimer();
-   bool IsExpanded() const { return m_is_expanded; }
-   bool IsInitialized() const { return m_is_initialized; }
-
+   void OnChartEvent(const int id, const long &lparam, const string &sparam);
+   void UpdateStatus(const string &status);
+   
 private:
    bool CreateMainButton();
-   bool CreatePanelBackground();
-   bool CreateTitleLabel();
-   bool CreateActionButtons();
-   bool CreateStatusLabel();
-   void UpdatePanelPosition(int x);
+   bool CreatePanel();
+   bool CreateButtons();
+   void SetPanelPosition(int x);
    void AnimatePanel();
-   string GetObjectName(const string &suffix) const;
-   color GetThemeColor(PFP_COLOR_TYPE type) const;
-   void Log(const string &message, PFP_LOG_LEVEL level = PFP_LOG_INFO);
+   void DeleteAllObjects();
 };
 
+//+------------------------------------------------------------------+
+//| Constructor                                                       |
+//+------------------------------------------------------------------+
 CPFP_GUI::CPFP_GUI(long chart_id, CPFP_Logger *logger)
 {
    m_chart_id = chart_id;
@@ -76,252 +71,250 @@ CPFP_GUI::CPFP_GUI(long chart_id, CPFP_Logger *logger)
    m_is_expanded = false;
    m_is_animating = false;
    m_base_name = "PFP_GUI_";
-   m_button_y = (int)ChartGetInteger(chart_id, CHART_HEIGHT_IN_PIXELS) - MARGIN_BOTTOM - BUTTON_SIZE_Y;
+   m_main_btn_name = m_base_name + "MainBtn";
+   m_panel_bg_name = m_base_name + "PanelBG";
+   m_title_label_name = m_base_name + "Title";
+   m_scan_btn_name = m_base_name + "ScanBtn";
+   m_replace_btn_name = m_base_name + "ReplaceBtn";
+   m_clear_btn_name = m_base_name + "ClearBtn";
+   m_close_btn_name = m_base_name + "CloseBtn";
+   m_status_label_name = m_base_name + "Status";
+   m_panel_current_x = -PANEL_WIDTH;
+   m_panel_closed_x = -PANEL_WIDTH;
+   m_panel_open_x = 0;
    m_button_x = MARGIN_LEFT;
-   m_panel_open_x = MARGIN_LEFT + BUTTON_SIZE_X;
-   m_panel_closed_x = -PANEL_WIDTH - 10;
-   m_panel_current_x = m_panel_closed_x;
-   m_panel_target_x = m_panel_closed_x;
+   m_button_y = MARGIN_BOTTOM;
 }
 
-CPFP_GUI::~CPFP_GUI() { Deinitialize(); }
+//+------------------------------------------------------------------+
+//| Destructor                                                        |
+//+------------------------------------------------------------------+
+CPFP_GUI::~CPFP_GUI()
+{
+   Deinitialize();
+}
 
+//+------------------------------------------------------------------+
+//| Initialize GUI                                                    |
+//+------------------------------------------------------------------+
 bool CPFP_GUI::Initialize()
 {
    if(m_is_initialized) return true;
-   EventSetTimer(1);
-   if(!CreateMainButton()) return false;
-   if(!CreatePanelBackground()) return false;
-   if(!CreateTitleLabel()) return false;
-   if(!CreateActionButtons()) return false;
-   if(!CreateStatusLabel()) return false;
-   CollapsePanel();
+   
+   if(!CreateMainButton()) {
+      if(m_logger) m_logger.Log("Failed to create main button", LOG_LEVEL_ERROR);
+      return false;
+   }
+   
    m_is_initialized = true;
+   if(m_logger) m_logger.Log("GUI initialized (collapsed mode)", LOG_LEVEL_INFO);
    return true;
 }
 
+//+------------------------------------------------------------------+
+//| Deinitialize GUI                                                  |
+//+------------------------------------------------------------------+
 void CPFP_GUI::Deinitialize()
 {
    if(!m_is_initialized) return;
-   EventKillTimer();
-   for(int i = ObjectsTotal(m_chart_id, 0, OBJ_RECTANGLE_LABEL) - 1; i >= 0; i--)
-   { string n = ObjectName(m_chart_id, i, 0, OBJ_RECTANGLE_LABEL); if(StringFind(n, m_base_name) == 0) ObjectDelete(m_chart_id, n); }
-   for(int i = ObjectsTotal(m_chart_id, 0, OBJ_BUTTON) - 1; i >= 0; i--)
-   { string n = ObjectName(m_chart_id, i, 0, OBJ_BUTTON); if(StringFind(n, m_base_name) == 0) ObjectDelete(m_chart_id, n); }
-   for(int i = ObjectsTotal(m_chart_id, 0, OBJ_LABEL) - 1; i >= 0; i--)
-   { string n = ObjectName(m_chart_id, i, 0, OBJ_LABEL); if(StringFind(n, m_base_name) == 0) ObjectDelete(m_chart_id, n); }
+   DeleteAllObjects();
    m_is_initialized = false;
+   if(m_logger) m_logger.Log("GUI deinitialized", LOG_LEVEL_INFO);
 }
 
-void CPFP_GUI::TogglePanel() { if(m_is_animating) return; if(m_is_expanded) CollapsePanel(); else ExpandPanel(); }
-
-void CPFP_GUI::ExpandPanel()
+//+------------------------------------------------------------------+
+//| Toggle panel open/closed                                          |
+//+------------------------------------------------------------------+
+void CPFP_GUI::TogglePanel()
 {
-   if(m_is_expanded || m_is_animating) return;
-   m_is_expanded = true;
-   m_panel_target_x = m_panel_open_x;
-   m_is_animating = true;
-   AnimatePanel();
-}
-
-void CPFP_GUI::CollapsePanel()
-{
-   if(!m_is_expanded || m_is_animating) return;
-   m_is_expanded = false;
-   m_panel_target_x = m_panel_closed_x;
-   m_is_animating = true;
-   AnimatePanel();
-}
-
-void CPFP_GUI::OnChartEvent(const int id, const long &lparam, const double &dparam, const string &sparam)
-{
-   if(id == CHARTEVENT_OBJECT_CLICK)
-   {
-      if(sparam == m_main_btn_name) { ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_STATE, false); TogglePanel(); }
-      else if(sparam == m_close_btn_name) { ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_STATE, false); CollapsePanel(); }
-      else if(sparam == m_scan_btn_name) { ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_STATE, false); EventChartCustom(m_chart_id, PFP_EVENT_SCAN, 0, 0, "GUI_SCAN"); }
-      else if(sparam == m_replace_btn_name) { ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_STATE, false); EventChartCustom(m_chart_id, PFP_EVENT_REPLACE, 0, 0, "GUI_REPLACE"); }
-      else if(sparam == m_clear_btn_name) { ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_STATE, false); EventChartCustom(m_chart_id, PFP_EVENT_CLEAR, 0, 0, "GUI_CLEAR"); }
+   m_is_expanded = !m_is_expanded;
+   
+   if(m_is_expanded) {
+      if(!CreatePanel()) {
+         if(m_logger) m_logger.Log("Failed to create panel", LOG_LEVEL_ERROR);
+         m_is_expanded = false;
+         return;
+      }
+      if(!CreateButtons()) {
+         if(m_logger) m_logger.Log("Failed to create buttons", LOG_LEVEL_ERROR);
+         m_is_expanded = false;
+         return;
+      }
+      ObjectSetInteger(0, m_main_btn_name, OBJPROP_HIDDEN, true);
+      if(m_logger) m_logger.Log("Panel expanded", LOG_LEVEL_INFO);
+   } else {
+      ObjectDelete(0, m_panel_bg_name);
+      ObjectDelete(0, m_title_label_name);
+      ObjectDelete(0, m_scan_btn_name);
+      ObjectDelete(0, m_replace_btn_name);
+      ObjectDelete(0, m_clear_btn_name);
+      ObjectDelete(0, m_close_btn_name);
+      ObjectDelete(0, m_status_label_name);
+      ObjectSetInteger(0, m_main_btn_name, OBJPROP_HIDDEN, false);
+      if(m_logger) m_logger.Log("Panel collapsed", LOG_LEVEL_INFO);
    }
-   else if(id == CHARTEVENT_CHART_CHANGE)
-   {
-      int new_y = (int)ChartGetInteger(m_chart_id, CHART_HEIGHT_IN_PIXELS) - MARGIN_BOTTOM - BUTTON_SIZE_Y;
-      if(new_y != m_button_y)
-      {
-         m_button_y = new_y;
-         ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_XDISTANCE, m_button_x);
-         ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_YDISTANCE, m_button_y);
-         if(m_is_expanded && !m_is_animating) UpdatePanelPosition(m_panel_open_x);
+   
+   ChartRedraw(m_chart_id);
+}
+
+//+------------------------------------------------------------------+
+//| Handle chart events                                               |
+//+------------------------------------------------------------------+
+void CPFP_GUI::OnChartEvent(const int id, const long &lparam, const string &sparam)
+{
+   if(id == CHARTEVENT_OBJECT_CLICK) {
+      if(sparam == m_main_btn_name || sparam == m_close_btn_name) {
+         TogglePanel();
+         ObjectSetInteger(0, sparam, OBJPROP_STATE, false);
+      }
+      else if(sparam == m_scan_btn_name) {
+         EventChartCustom(m_chart_id, PFP_EVENT_SCAN, 0, 0, "SCAN");
+         ObjectSetInteger(0, m_scan_btn_name, OBJPROP_STATE, false);
+         if(m_logger) m_logger.Log("Scan requested", LOG_LEVEL_INFO);
+      }
+      else if(sparam == m_replace_btn_name) {
+         EventChartCustom(m_chart_id, PFP_EVENT_REPLACE, 0, 0, "REPLACE");
+         ObjectSetInteger(0, m_replace_btn_name, OBJPROP_STATE, false);
+         if(m_logger) m_logger.Log("Replace requested", LOG_LEVEL_INFO);
+      }
+      else if(sparam == m_clear_btn_name) {
+         EventChartCustom(m_chart_id, PFP_EVENT_CLEAR, 0, 0, "CLEAR");
+         ObjectSetInteger(0, m_clear_btn_name, OBJPROP_STATE, false);
+         if(m_logger) m_logger.Log("Clear all requested", LOG_LEVEL_INFO);
       }
    }
 }
 
-void CPFP_GUI::OnTimer() { if(m_is_animating) AnimatePanel(); }
+//+------------------------------------------------------------------+
+//| Update status label                                               |
+//+------------------------------------------------------------------+
+void CPFP_GUI::UpdateStatus(const string &status)
+{
+   if(ObjectFind(0, m_status_label_name) >= 0) {
+      ObjectSetString(0, m_status_label_name, OBJPROP_TEXT, status);
+   }
+}
 
+//+------------------------------------------------------------------+
+//| Create main toggle button                                         |
+//+------------------------------------------------------------------+
 bool CPFP_GUI::CreateMainButton()
 {
-   m_main_btn_name = GetObjectName("MAIN_BTN");
-   if(!ObjectCreate(m_chart_id, m_main_btn_name, OBJ_BUTTON, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_XDISTANCE, m_button_x);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_YDISTANCE, m_button_y);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_XSIZE, BUTTON_SIZE_X);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_YSIZE, BUTTON_SIZE_Y);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_BGCOLOR, GetThemeColor(PFP_COLOR_PRIMARY));
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_COLOR, clrWhite);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_BORDER_COLOR, GetThemeColor(PFP_COLOR_BORDER));
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_TEXT, ">");
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_FONTSIZE, 14);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_HIDDEN, true);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_ZORDER, 100);
-   return true;
-}
-
-bool CPFP_GUI::CreatePanelBackground()
-{
-   m_panel_bg_name = GetObjectName("PANEL_BG");
-   if(!ObjectCreate(m_chart_id, m_panel_bg_name, OBJ_RECTANGLE_LABEL, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_XDISTANCE, m_panel_closed_x);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_YDISTANCE, m_button_y);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_XSIZE, PANEL_WIDTH);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_YSIZE, 160);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_BGCOLOR, GetThemeColor(PFP_COLOR_BG_PANEL));
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_BORDER_COLOR, GetThemeColor(PFP_COLOR_PRIMARY));
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_BORDER_TYPE, BORDER_FLAT);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_WIDTH, 2);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_HIDDEN, true);
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_ZORDER, 90);
-   return true;
-}
-
-bool CPFP_GUI::CreateTitleLabel()
-{
-   m_title_label_name = GetObjectName("TITLE");
-   if(!ObjectCreate(m_chart_id, m_title_label_name, OBJ_LABEL, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_XDISTANCE, m_panel_closed_x + 10);
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_YDISTANCE, m_button_y + 135);
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_COLOR, GetThemeColor(PFP_COLOR_TEXT));
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_FONTSIZE, 10);
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_TEXT, "PitchforkPro v1.0.1");
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_HIDDEN, true);
-   return true;
-}
-
-bool CPFP_GUI::CreateActionButtons()
-{
-   int btn_w = 80, btn_h = 30, sp = 5;
-   int sx = m_panel_closed_x + 10, sy = m_button_y + 90;
-   m_scan_btn_name = GetObjectName("BTN_SCAN");
-   if(!ObjectCreate(m_chart_id, m_scan_btn_name, OBJ_BUTTON, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_XDISTANCE, sx);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_YDISTANCE, sy);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_XSIZE, btn_w);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_YSIZE, btn_h);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_TEXT, "Scan");
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_COLOR, clrWhite);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_BGCOLOR, GetThemeColor(PFP_COLOR_ACCENT));
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_FONTSIZE, 9);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_HIDDEN, true);
+   if(!ObjectCreate(0, m_main_btn_name, OBJ_BUTTON)) {
+      return false;
+   }
    
-   m_replace_btn_name = GetObjectName("BTN_REPLACE");
-   if(!ObjectCreate(m_chart_id, m_replace_btn_name, OBJ_BUTTON, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_XDISTANCE, sx + btn_w + sp);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_YDISTANCE, sy);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_XSIZE, btn_w);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_YSIZE, btn_h);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_TEXT, "Replace");
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_COLOR, clrWhite);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_BGCOLOR, GetThemeColor(PFP_COLOR_PRIMARY));
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_FONTSIZE, 9);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_HIDDEN, true);
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_XDISTANCE, MARGIN_LEFT);
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_YDISTANCE, MARGIN_BOTTOM);
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_XSIZE, BUTTON_SIZE_X);
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_YSIZE, BUTTON_SIZE_Y);
+   ObjectSetString(0, m_main_btn_name, OBJPROP_TEXT, "⚙");
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_COLOR, PFP_COLOR_PRIMARY);
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_BGCOLOR, PFP_COLOR_BG_PANEL);
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_BORDER_COLOR, PFP_COLOR_BORDER);
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_FONTSIZE, 16);
+   ObjectSetString(0, m_main_btn_name, OBJPROP_FONT, "Segoe UI Symbol");
+   ObjectSetInteger(0, m_main_btn_name, OBJPROP_SELECTABLE, false);
    
-   m_clear_btn_name = GetObjectName("BTN_CLEAR");
-   if(!ObjectCreate(m_chart_id, m_clear_btn_name, OBJ_BUTTON, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_XDISTANCE, sx);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_YDISTANCE, sy - btn_h - sp);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_XSIZE, btn_w * 2 + sp);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_YSIZE, btn_h);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_TEXT, "Clear All");
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_COLOR, clrWhite);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_BGCOLOR, clrDarkRed);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_FONTSIZE, 9);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_HIDDEN, true);
-   
-   m_close_btn_name = GetObjectName("BTN_CLOSE");
-   if(!ObjectCreate(m_chart_id, m_close_btn_name, OBJ_BUTTON, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_XDISTANCE, m_panel_closed_x + PANEL_WIDTH - 30);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_YDISTANCE, m_button_y + 130);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_XSIZE, 25);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_YSIZE, 25);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_TEXT, "X");
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_COLOR, clrWhite);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_BGCOLOR, clrGray);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_FONTSIZE, 14);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_HIDDEN, true);
    return true;
 }
 
-bool CPFP_GUI::CreateStatusLabel()
+//+------------------------------------------------------------------+
+//| Create panel background                                           |
+//+------------------------------------------------------------------+
+bool CPFP_GUI::CreatePanel()
 {
-   m_status_label_name = GetObjectName("STATUS");
-   if(!ObjectCreate(m_chart_id, m_status_label_name, OBJ_LABEL, 0, 0, 0)) return false;
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_CORNER, CORNER_LEFT_LOWER);
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_XDISTANCE, m_panel_closed_x + 10);
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_YDISTANCE, m_button_y + 60);
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_COLOR, GetThemeColor(PFP_COLOR_TEXT_SECONDARY));
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_FONTSIZE, 8);
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_TEXT, "Ready");
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_SELECTABLE, false);
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_HIDDEN, true);
+   int width = PANEL_WIDTH;
+   int height = 220;
+   int x = 0;
+   int y = MARGIN_BOTTOM + BUTTON_SIZE_Y + 10;
+   
+   if(!ObjectCreate(0, m_panel_bg_name, OBJ_RECTANGLE_LABEL)) {
+      return false;
+   }
+   
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_XDISTANCE, x);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_YDISTANCE, y);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_XSIZE, width);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_YSIZE, height);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_COLOR, PFP_COLOR_BORDER);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_BGCOLOR, PFP_COLOR_BG_PANEL);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_BORDER_TYPE, BORDER_FLAT);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_CORNER, CORNER_LEFT_BOTTOM);
+   ObjectSetInteger(0, m_panel_bg_name, OBJPROP_SELECTABLE, false);
+   
+   if(!ObjectCreate(0, m_title_label_name, OBJ_LABEL)) {
+      return false;
+   }
+   
+   ObjectSetInteger(0, m_title_label_name, OBJPROP_XDISTANCE, x + 10);
+   ObjectSetInteger(0, m_title_label_name, OBJPROP_YDISTANCE, y + height - 35);
+   ObjectSetString(0, m_title_label_name, OBJPROP_TEXT, "PitchforkPro v1.0.1");
+   ObjectSetInteger(0, m_title_label_name, OBJPROP_COLOR, PFP_COLOR_TEXT);
+   ObjectSetInteger(0, m_title_label_name, OBJPROP_FONTSIZE, 11);
+   ObjectSetString(0, m_title_label_name, OBJPROP_FONT, "Arial Bold");
+   ObjectSetInteger(0, m_title_label_name, OBJPROP_SELECTABLE, false);
+   
    return true;
 }
 
-void CPFP_GUI::AnimatePanel()
+//+------------------------------------------------------------------+
+//| Create action buttons                                             |
+//+------------------------------------------------------------------+
+bool CPFP_GUI::CreateButtons()
 {
-   if(!m_is_animating) return;
-   int step = ANIMATION_STEP;
-   bool finished = false;
-   if(m_panel_current_x < m_panel_target_x) { m_panel_current_x += step; if(m_panel_current_x >= m_panel_target_x) { m_panel_current_x = m_panel_target_x; finished = true; } }
-   else if(m_panel_current_x > m_panel_target_x) { m_panel_current_x -= step; if(m_panel_current_x <= m_panel_target_x) { m_panel_current_x = m_panel_target_x; finished = true; } }
-   UpdatePanelPosition(m_panel_current_x);
-   ObjectSetInteger(m_chart_id, m_main_btn_name, OBJPROP_TEXT, m_is_expanded ? "<" : ">");
-   if(finished) m_is_animating = false;
+   int btnWidth = PANEL_WIDTH - 20;
+   int btnHeight = 35;
+   int startX = 10;
+   int startY = MARGIN_BOTTOM + 10;
+   
+   string btnNames[] = {m_scan_btn_name, m_replace_btn_name, m_clear_btn_name};
+   string btnTexts[] = {"🔍 Scan Pitchforks", "🔄 Replace All", "🗑 Clear All"};
+   
+   for(int i = 0; i < 3; i++) {
+      if(!ObjectCreate(0, btnNames[i], OBJ_BUTTON)) {
+         return false;
+      }
+      
+      ObjectSetInteger(0, btnNames[i], OBJPROP_XDISTANCE, startX);
+      ObjectSetInteger(0, btnNames[i], OBJPROP_YDISTANCE, startY + (i * (btnHeight + 8)));
+      ObjectSetInteger(0, btnNames[i], OBJPROP_XSIZE, btnWidth);
+      ObjectSetInteger(0, btnNames[i], OBJPROP_YSIZE, btnHeight);
+      ObjectSetString(0, btnNames[i], OBJPROP_TEXT, btnTexts[i]);
+      ObjectSetInteger(0, btnNames[i], OBJPROP_COLOR, PFP_COLOR_TEXT);
+      ObjectSetInteger(0, btnNames[i], OBJPROP_BGCOLOR, PFP_COLOR_PRIMARY);
+      ObjectSetInteger(0, btnNames[i], OBJPROP_BORDER_COLOR, PFP_COLOR_BORDER);
+      ObjectSetInteger(0, btnNames[i], OBJPROP_FONTSIZE, 9);
+      ObjectSetString(0, btnNames[i], OBJPROP_FONT, "Arial");
+      ObjectSetInteger(0, btnNames[i], OBJPROP_SELECTABLE, false);
+   }
+   
+   if(!ObjectCreate(0, m_status_label_name, OBJ_LABEL)) {
+      return false;
+   }
+   
+   ObjectSetInteger(0, m_status_label_name, OBJPROP_XDISTANCE, startX);
+   ObjectSetInteger(0, m_status_label_name, OBJPROP_YDISTANCE, startY + (3 * (btnHeight + 8)) + 10);
+   ObjectSetString(0, m_status_label_name, OBJPROP_TEXT, "Ready");
+   ObjectSetInteger(0, m_status_label_name, OBJPROP_COLOR, PFP_COLOR_TEXT_SECONDARY);
+   ObjectSetInteger(0, m_status_label_name, OBJPROP_FONTSIZE, 8);
+   ObjectSetString(0, m_status_label_name, OBJPROP_FONT, "Arial");
+   ObjectSetInteger(0, m_status_label_name, OBJPROP_SELECTABLE, false);
+   
+   return true;
 }
 
-void CPFP_GUI::UpdatePanelPosition(int x)
+//+------------------------------------------------------------------+
+//| Delete all GUI objects                                            |
+//+------------------------------------------------------------------+
+void CPFP_GUI::DeleteAllObjects()
 {
-   ObjectSetInteger(m_chart_id, m_panel_bg_name, OBJPROP_XDISTANCE, x);
-   ObjectSetInteger(m_chart_id, m_title_label_name, OBJPROP_XDISTANCE, x + 10);
-   int btn_w = 80, sp = 5, sx = x + 10, sy = m_button_y + 90;
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_XDISTANCE, sx);
-   ObjectSetInteger(m_chart_id, m_scan_btn_name, OBJPROP_YDISTANCE, sy);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_XDISTANCE, sx + btn_w + sp);
-   ObjectSetInteger(m_chart_id, m_replace_btn_name, OBJPROP_YDISTANCE, sy);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_XDISTANCE, sx);
-   ObjectSetInteger(m_chart_id, m_clear_btn_name, OBJPROP_YDISTANCE, sy - 35);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_XDISTANCE, x + PANEL_WIDTH - 30);
-   ObjectSetInteger(m_chart_id, m_close_btn_name, OBJPROP_YDISTANCE, m_button_y + 130);
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_XDISTANCE, x + 10);
-   ObjectSetInteger(m_chart_id, m_status_label_name, OBJPROP_YDISTANCE, m_button_y + 60);
+   ObjectDelete(0, m_main_btn_name);
+   ObjectDelete(0, m_panel_bg_name);
+   ObjectDelete(0, m_title_label_name);
+   ObjectDelete(0, m_scan_btn_name);
+   ObjectDelete(0, m_replace_btn_name);
+   ObjectDelete(0, m_clear_btn_name);
+   ObjectDelete(0, m_close_btn_name);
+   ObjectDelete(0, m_status_label_name);
 }
-
-string CPFP_GUI::GetObjectName(const string &suffix) const { return m_base_name + suffix; }
-
-color CPFP_GUI::GetThemeColor(PFP_COLOR_TYPE type) const
-{
-   switch(type) { case PFP_COLOR_PRIMARY: return clrDodgerBlue; case PFP_COLOR_ACCENT: return clrGreen; case PFP_COLOR_BG_PANEL: return clrBlack; case PFP_COLOR_TEXT: return clrWhite; case PFP_COLOR_TEXT_SECONDARY: return clrLightGray; case PFP_COLOR_BORDER: return clrDarkGray; default: return clrWhite; }
-}
-
-void CPFP_GUI::Log(const string &message, PFP_LOG_LEVEL level) { if(m_logger) m_logger->Log(message, level); else Print("[GUI] ", message); }

@@ -56,7 +56,7 @@ CPFP_ObjectManager *g_ObjectMgr = NULL;
 CPFP_TypeDetector  *g_TypeDetector = NULL;
 CPFP_Renderer      *g_Renderer = NULL;
 CPFP_GeometryEngine *g_Geometry = NULL;
-PFP_GUI            *g_GUI = NULL;          // مدیر رابط کاربری گرافیکی
+CPFP_GUI           *g_GUI = NULL;          // مدیر رابط کاربری گرافیکی
 CPFP_Dashboard     *g_Dashboard = NULL;    // داشبورد حرفه‌ای
 
 // تعریف برای دسترسی در فایل‌های دیگر (extern)
@@ -158,7 +158,7 @@ int OnInit()
    g_Manager.SetObjectManager(g_ObjectMgr);
 
    //--- ایجاد رابط کاربری گرافیکی (GUI)
-   g_GUI = new PFP_GUI(g_Manager);
+   g_GUI = new CPFP_GUI(ChartID(), g_Logger);
    if(g_GUI == NULL)
    {
       g_Logger.Error("خطا در ایجاد GUI");
@@ -171,11 +171,18 @@ int OnInit()
       return INIT_FAILED;
    }
    
-   //--- اعمال تم انتخاب شده و راه‌اندازی اولیه GUI
-   g_GUI.SetTheme(Inp_GUITheme);
+   //--- راه‌اندازی اولیه GUI
    if(!g_GUI.Initialize())
    {
-      g_Logger.Warning("راه‌اندازی اولیه GUI با مشکل مواجه شد، اما ادامه می‌دهیم.");
+      g_Logger.Error("خطا در راه‌اندازی GUI");
+      delete g_GUI;
+      delete g_Manager;
+      delete g_ObjectMgr;
+      delete g_Renderer;
+      delete g_Geometry;
+      delete g_TypeDetector;
+      delete g_Logger;
+      return INIT_FAILED;
    }
    else
    {
@@ -230,7 +237,7 @@ void OnDeinit(const int reason)
    //--- مخفی کردن و پاکسازی GUI
    if(g_GUI != NULL)
    {
-      g_GUI.Hide();
+      g_GUI.Deinitialize();
       delete g_GUI;
    }
    
@@ -366,9 +373,9 @@ void OnChartEvent(const int id,
    }
    
    //--- ارسال رویداد به GUI برای پردازش
-   if(g_GUI != NULL && g_GUI.IsVisible())
+   if(g_GUI != NULL)
    {
-      g_GUI.OnChartEvent(id, lparam, dparam, sparam);
+      g_GUI.OnChartEvent(id, lparam, sparam);
    }
    
    //--- افزودن رویداد به صف برای پردازش ناهمگام
@@ -396,11 +403,7 @@ void OnChartEvent(const int id,
          g_Logger.Info("دستور نمایش/مخفی کردن GUI دریافت شد (کلید: " + Inp_GUIKey + ")");
          if(g_GUI != NULL)
          {
-            g_GUI.Toggle();
-            if(g_GUI.IsVisible())
-            {
-               g_GUI.Refresh();
-            }
+            g_GUI.TogglePanel();
          }
       }
       
@@ -433,11 +436,6 @@ void OnChartEvent(const int id,
             g_Manager.RemovePitchfork(g_SelectedPitchforkID);
             g_SelectedPitchforkID = "";
             Comment("");
-            // بروزرسانی GUI پس از حذف
-            if(g_GUI != NULL && g_GUI.IsVisible())
-            {
-               g_GUI.Refresh();
-            }
          }
       }
    }
@@ -527,9 +525,7 @@ void HandleScanCommand()
       g_Manager.RenderAllActive();
       
       // بروزرسانی GUI اگر فعال است
-      if(g_GUI != NULL && g_GUI.IsVisible())
       {
-         g_GUI.Refresh();
       }
       
       // بروزرسانی داشبورد
@@ -574,9 +570,7 @@ void HandleReplaceCommand()
       g_Manager.RenderAllActive();
       
       // بروزرسانی GUI اگر فعال است
-      if(g_GUI != NULL && g_GUI.IsVisible())
       {
-         g_GUI.Refresh();
       }
       
       // بروزرسانی داشبورد

@@ -113,6 +113,13 @@ public:
          LogMessage("ERROR", msg);
    }
    
+   //--- لاگ عمومی با سطح سفارشی
+   void Log(const string msg, ENUM_PFP_LOG_LEVEL level = LOG_LEVEL_INFO)
+   {
+      if(level >= m_LogLevel)
+         LogMessage(EnumToString(level), msg);
+   }
+   
    //--- لاگ با فرمت سفارشی
    string Format(ENUM_PFP_LOG_LEVEL level, const string format)
    {

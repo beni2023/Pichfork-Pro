@@ -1,53 +1,66 @@
 ```
-# Compiled and binary files
-*.mqh
+# Compiled files
 *.mq5
 *.ex5
-*.ex4
-*.fxt
+*.mqh
+
+# MetaQuotes cache and temporary files
+*.cache
+*.tdf
 *.hst
+*.fxt
 *.csv
 
-# Build artifacts
-*.dll
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Dependencies and build artifacts
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.class
+*.o
+*.obj
 *.so
-*.dylib
+*.dll
 *.exe
 *.out
 
-# Dependencies
-node_modules/
-venv/
-.venv/
-.env
-.env.local
-.env.*
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-*.swo
-
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-
-# Editors
-.vscode/
-.idea/
-
-# System files
-.DS_Store
-Thumbs.db
-
-# Cache directories
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-.gradle/
-target/
+# Distribution and build folders
 dist/
 build/
+target/
+bin/
+obj/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.conda/
+
+# Coverage and testing
+.coverage
+coverage/
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
 ```
