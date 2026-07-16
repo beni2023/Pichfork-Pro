@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2024, PitchforkPro"
 #property link      "https://example.com"
-#property version   "1.00"
+#property version   "1.000"
 #property strict
 
 #ifdef PFP_DEBUG

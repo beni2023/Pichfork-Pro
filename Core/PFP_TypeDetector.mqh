@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 #property copyright "2024, PitchforkPro Team"
 #property link      "https://pitchforkpro.com"
-#property version   "1.0.0"
+#property version   "1.000"
 //+------------------------------------------------------------------+
 #include "../Utils/PFP_Logger.mqh"
 #include "../Utils/PFP_Constants.mqh"

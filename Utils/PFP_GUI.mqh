@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 #property copyright "Copyright 2024, PitchforkPro"
 #property link      "https://github.com/pfp-pro"
-#property version   "1.0.0"
+#property version   "1.000"
 #property description "Professional GUI Manager for PitchforkPro"
 
 #include "../Utils/PFP_Logger.mqh"
@@ -114,8 +114,8 @@ PFP_GUI::PFP_GUI(CPFP_MultiManager *manager)
    m_panel_id = (int)(TimeLocal() % 2147483647);
    m_is_visible = false;
    
-   // موقعیت پیش‌فرض (گوشه بالا راست)
-   m_pos_x = ChartGetInteger(0, CHART_WIDTH_IN_PIXELS) - 320;
+   // موقعیت پیش‌فرض (گوشه بالا راست) - با تبدیل صریح به int
+   m_pos_x = (int)ChartGetInteger(0, CHART_WIDTH_IN_PIXELS) - 320;
    m_pos_y = 50;
    m_width = 300;
    m_height = 400;

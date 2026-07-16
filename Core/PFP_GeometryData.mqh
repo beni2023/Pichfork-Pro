@@ -5,7 +5,7 @@
 //+------------------------------------------------------------------+
 #property copyright "2024, PitchforkPro Dev"
 #property link      "https://pitchforkpro.io"
-#property version   "1.00"
+#property version   "1.000"
 #property strict
 
 #ifndef PFP_GEOMETRY_DATA_MQH
