@@ -1,25 +1,43 @@
-```
-# Compiled files
+# Compiled and build artifacts
 *.mqh
+*.mq4
 *.mq5
-
-# Build artifacts
-*.ex5
 *.ex4
+*.ex5
+*.fxt
+*.set
+*.hst
+*.csv
 
 # Dependencies
-include/
+lib/
+Libraries/
 
 # Logs and temp files
 *.log
 *.tmp
-
-# Editors
-.vscode/
-.idea/
+*.swp
+*.swo
 
 # Environment
 .env
 .env.local
-*.env.*
-```
+.env.*
+
+# Editors
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# MT4/MT5 specific
+tester/
+Profiles/
+config/
+
+# Backup files
+*.bak
+*.backup
+*~
