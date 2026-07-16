@@ -8,8 +8,8 @@
 #property version   "1.0.1"
 #property description "Advanced Slide Panel GUI - Opens from left with smooth animation"
 
-#include <PFP_Constants.mqh>
-#include <PFP_Logger.mqh>
+#include "PFP_Constants.mqh"
+#include "PFP_Logger.mqh"
 
 #define ANIMATION_STEP 50
 #define PANEL_WIDTH 280
@@ -17,6 +17,20 @@
 #define BUTTON_SIZE_Y 40
 #define MARGIN_LEFT 10
 #define MARGIN_BOTTOM 10
+
+// Define corner constants if not available
+#ifndef CORNER_LEFT_BOTTOM
+#define CORNER_LEFT_BOTTOM 1
+#endif
+#ifndef CORNER_RIGHT_BOTTOM
+#define CORNER_RIGHT_BOTTOM 2
+#endif
+#ifndef CORNER_LEFT_TOP
+#define CORNER_LEFT_TOP 0
+#endif
+#ifndef CORNER_RIGHT_TOP
+#define CORNER_RIGHT_TOP 3
+#endif
 
 class CPFP_GUI
 {
@@ -224,7 +238,7 @@ void CPFP_GUI::UpdateStatus(const string &status)
 //+------------------------------------------------------------------+
 bool CPFP_GUI::CreateMainButton()
 {
-   if(!ObjectCreate(0, m_main_btn_name, OBJ_BUTTON)) {
+   if(!ObjectCreate(0, m_main_btn_name, OBJ_BUTTON, 0, 0, 0)) {
       return false;
    }
    
@@ -253,7 +267,7 @@ bool CPFP_GUI::CreatePanel()
    int x = 0;
    int y = MARGIN_BOTTOM + BUTTON_SIZE_Y + 10;
    
-   if(!ObjectCreate(0, m_panel_bg_name, OBJ_RECTANGLE_LABEL)) {
+   if(!ObjectCreate(0, m_panel_bg_name, OBJ_RECTANGLE_LABEL, 0, 0, 0)) {
       return false;
    }
    
@@ -267,7 +281,7 @@ bool CPFP_GUI::CreatePanel()
    ObjectSetInteger(0, m_panel_bg_name, OBJPROP_CORNER, CORNER_LEFT_BOTTOM);
    ObjectSetInteger(0, m_panel_bg_name, OBJPROP_SELECTABLE, false);
    
-   if(!ObjectCreate(0, m_title_label_name, OBJ_LABEL)) {
+   if(!ObjectCreate(0, m_title_label_name, OBJ_LABEL, 0, 0, 0)) {
       return false;
    }
    
@@ -296,7 +310,7 @@ bool CPFP_GUI::CreateButtons()
    string btnTexts[] = {"🔍 Scan Pitchforks", "🔄 Replace All", "🗑 Clear All"};
    
    for(int i = 0; i < 3; i++) {
-      if(!ObjectCreate(0, btnNames[i], OBJ_BUTTON)) {
+      if(!ObjectCreate(0, btnNames[i], OBJ_BUTTON, 0, 0, 0)) {
          return false;
       }
       
@@ -314,7 +328,7 @@ bool CPFP_GUI::CreateButtons()
    }
    
    // Color Toggle Button
-   if(!ObjectCreate(0, m_color_toggle_btn_name, OBJ_BUTTON)) {
+   if(!ObjectCreate(0, m_color_toggle_btn_name, OBJ_BUTTON, 0, 0, 0)) {
       return false;
    }
    ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_XDISTANCE, startX);
@@ -330,7 +344,7 @@ bool CPFP_GUI::CreateButtons()
    ObjectSetInteger(0, m_color_toggle_btn_name, OBJPROP_SELECTABLE, false);
    
    // Warning Lines Toggle Button
-   if(!ObjectCreate(0, m_warning_lines_btn_name, OBJ_BUTTON)) {
+   if(!ObjectCreate(0, m_warning_lines_btn_name, OBJ_BUTTON, 0, 0, 0)) {
       return false;
    }
    ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_XDISTANCE, startX);
@@ -346,7 +360,7 @@ bool CPFP_GUI::CreateButtons()
    ObjectSetInteger(0, m_warning_lines_btn_name, OBJPROP_SELECTABLE, false);
    
    // Quarter Lines Toggle Button
-   if(!ObjectCreate(0, m_quarter_lines_btn_name, OBJ_BUTTON)) {
+   if(!ObjectCreate(0, m_quarter_lines_btn_name, OBJ_BUTTON, 0, 0, 0)) {
       return false;
    }
    ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_XDISTANCE, startX);
@@ -361,7 +375,7 @@ bool CPFP_GUI::CreateButtons()
    ObjectSetString(0, m_quarter_lines_btn_name, OBJPROP_FONT, "Arial");
    ObjectSetInteger(0, m_quarter_lines_btn_name, OBJPROP_SELECTABLE, false);
    
-   if(!ObjectCreate(0, m_status_label_name, OBJ_LABEL)) {
+   if(!ObjectCreate(0, m_status_label_name, OBJ_LABEL, 0, 0, 0)) {
       return false;
    }
    

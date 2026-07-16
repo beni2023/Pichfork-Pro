@@ -1,6 +1,10 @@
 #ifndef PFP_CONSTANTS_MQH
 #define PFP_CONSTANTS_MQH
 
+// Include standard library for CORNER constants
+#import <stdlib.mqh>
+#import
+
 //==================================================
 // Pitchfork Types
 //==================================================
