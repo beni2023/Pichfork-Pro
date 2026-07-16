@@ -59,6 +59,9 @@ CPFP_GeometryEngine *g_Geometry = NULL;
 PFP_GUI            *g_GUI = NULL;          // مدیر رابط کاربری گرافیکی
 CPFP_Dashboard     *g_Dashboard = NULL;    // داشبورد حرفه‌ای
 
+// تعریف برای دسترسی در فایل‌های دیگر (extern)
+// MultiManager به g_Dashboard نیاز دارد - در PFP_MultiManager.mqh تعریف شده
+
 //--- وضعیت‌های سیستم
 bool g_IsProcessing = false;          // قفل پردازش برای جلوگیری از تداخل
 datetime g_LastBarTime = 0;           // زمان آخرین کندل پردازش شده
@@ -553,7 +556,21 @@ void HandleReplaceCommand()
    // جایگزینی تمام پیچ‌فورک‌های استاندارد با نسخه پیشرفته
    if(g_Manager != NULL)
    {
-      g_Manager.ReplaceAllPitchforks();
+      // بررسی حالت جایگزینی از داشبورد
+      bool useReplaceMode = (g_Dashboard != NULL && g_Dashboard.IsReplaceMode());
+      
+      if(useReplaceMode)
+      {
+         // حالت جدید: اسکن و تبدیل با پشتیبانی از انواع Schiff
+         g_Logger.Info("حالت جایگزینی فعال است - اسکن با پشتیبانی از انواع چنگال");
+         g_Manager.ScanAndStoreAll();
+      }
+      else
+      {
+         // حالت قدیمی: فقط جایگزینی استاندارد
+         g_Manager.ReplaceAllPitchforks();
+      }
+      
       g_Manager.RenderAllActive();
       
       // بروزرسانی GUI اگر فعال است

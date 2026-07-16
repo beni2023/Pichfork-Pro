@@ -200,6 +200,9 @@ public:
       ObjectSetInteger(m_chart_id, m_btn_toggle_mode, OBJPROP_BGCOLOR, bgColor);
    }
    
+   //--- Get Replace Mode State
+   bool IsReplaceMode() const { return m_replace_mode; }
+   
 private:
    //--- Helper: Create Label
    bool CreateLabel(string name, int x, int y, string text, color text_color, int font_size, bool bold)
