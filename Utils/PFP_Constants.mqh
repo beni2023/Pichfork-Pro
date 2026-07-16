@@ -2,7 +2,6 @@
 #define PFP_CONSTANTS_MQH
 
 // CORNER constants are built-in MQL5, no need to include stdlib.mqh
-// #include <stdlib.mqh>  // Removed - causes compilation error
 
 //==================================================
 // Pitchfork Types
