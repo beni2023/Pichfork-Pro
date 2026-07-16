@@ -1,38 +1,51 @@
 ```
-# Compiled and build artifacts
-*.mqh~
+# Compiled and binary files
+*.mqh
+*.mq5
 *.ex4
 *.ex5
+*.fxt
+*.gsc
+*.hst
+*.hcc
 *.os
-*.o
-*.obj
-*.out
+*.osc
+*.cs
 *.dll
 *.so
-*.a
+*.dylib
 
-# Dependencies
-lib/
-Libraries/
+# Build and cache directories
+MQL4/
+MQL5/
+cache/
+*.cache
+.TemporaryItems/
 
-# Logs and temp files
+# Logs
 *.log
-*.tmp
-*.swp
-*.bak
-*.~*
+debug.log
+error.log
 
-# Editors
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Editor/IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# MetaTrader specific
+# Configuration backups
+config.backup
+settings.dat
+
+# MT4/MT5 specific
 tester/
-logs/
-*.hst
-*.fxt
-*.csv
-*.report
+tester_data/
+profiles/
+templates/
 ```

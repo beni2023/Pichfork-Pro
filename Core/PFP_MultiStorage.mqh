@@ -208,7 +208,7 @@ void ClearAll()
    string filePath = GetFilePath();
    
    // Delete the file if it exists
-   if(FileOpen(PFP_MULTI_STORAGE_FILE, FILE_READ | FILE_BIN) != INVALID_HANDLE || FileIsExist(PFP_MULTI_STORAGE_FILE))
+   if(FileOpen(PFP_MULTI_STORAGE_FILE, FILE_READ | FILE_BIN) != INVALID_HANDLE)
    {
       if(FileDelete(PFP_MULTI_STORAGE_FILE))
       {

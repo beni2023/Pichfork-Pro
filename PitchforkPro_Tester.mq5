@@ -419,7 +419,7 @@ void Test_DuplicateSave()
    
    // Check file size or timestamp to ensure no corruption (basic check)
    string path = "\\MQL5\\Files\\PitchforkPro\\data.bin";
-   bool exists = FileIsExist(path);
+   bool exists = FileOpen(path, FILE_READ | FILE_BIN) != INVALID_HANDLE;
    
    g_report.RecordTest("Duplicate_Save_Safety", exists, "File exists after rapid saves", totalTime/1000000);
 }

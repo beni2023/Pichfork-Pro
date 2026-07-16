@@ -142,20 +142,17 @@ PFP_GUI::~PFP_GUI()
 //+------------------------------------------------------------------+
 bool PFP_GUI::Initialize()
 {
-   if(!IsStopped())
-   {
-      ApplyTheme(m_current_theme);
-      
-      if(!CreateBackground()) return false;
-      if(!CreateHeader()) return false;
-      if(!CreateControls()) return false;
-      if(!CreateListContainer()) return false;
-      
-      m_is_visible = true;
-      Print("GUI: Initialization successful");
-      return true;
-   }
-   return false;
+   // Note: IsStopped() check removed - not available in class context
+   ApplyTheme(m_current_theme);
+
+   if(!CreateBackground()) return false;
+   if(!CreateHeader()) return false;
+   if(!CreateControls()) return false;
+   if(!CreateListContainer()) return false;
+
+   m_is_visible = true;
+   Print("GUI: Initialization successful");
+   return true;
 }
 
 //+------------------------------------------------------------------+
