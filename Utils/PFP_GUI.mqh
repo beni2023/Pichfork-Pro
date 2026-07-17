@@ -70,6 +70,8 @@ public:
    void UpdateStatus(const string &status);
    void ShowPanel();
    void HidePanel();
+   void OnTimer();
+   void Refresh();
    
 private:
    bool CreateMainButton();
@@ -591,4 +593,22 @@ void CPFP_GUI::AnimatePanel()
    }
    
    m_is_animating = false;
+}
+
+//+------------------------------------------------------------------+
+//| Timer handler for animation updates                               |
+//+------------------------------------------------------------------+
+void CPFP_GUI::OnTimer()
+{
+   // Animation is handled in AnimatePanel() which runs synchronously
+   // This can be used for other periodic updates if needed
+}
+
+//+------------------------------------------------------------------+
+//| Refresh GUI elements                                              |
+//+------------------------------------------------------------------+
+void CPFP_GUI::Refresh()
+{
+   // Force chart redraw to update GUI
+   ChartRedraw(m_chart_id);
 }

@@ -1,1 +1,71 @@
-Nothing should be ignored based on the provided file changes. The only modified file is 'PitchforkPro.mq5', which appears to be a source code file and should not be added to .gitignore.
+```
+# Compiled and binary files
+*.mqh
+*.mq5
+*.ex4
+*.ex5
+*.fxt
+*.gsc
+*.mq4
+*.mqd
+*.set
+
+# Build artifacts
+*.dll
+*.so
+*.dylib
+*.exe
+*.bin
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+.env
+.env.local
+.env.*
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage and testing
+.coverage
+coverage/
+htmlcov/
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg-info/
+.eggs/
+
+# Distribution artifacts
+dist/
+build/
+*.tar.gz
+*.whl
+*.egg
+
+# Gradle
+.gradle/
+build/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+```

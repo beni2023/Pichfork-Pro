@@ -68,13 +68,19 @@ enum ENUM_PFP_DIRECTION
 // Event Types
 //==================================================
 
-#define PFP_EVENT_SCAN 1001
-#define PFP_EVENT_REPLACE 1002
-#define PFP_EVENT_CLEAR 1003
-#define PFP_EVENT_TOGGLE 1004
-#define PFP_EVENT_TOGGLE_COLOR 1005
-#define PFP_EVENT_TOGGLE_WARNING 1006
-#define PFP_EVENT_TOGGLE_QUARTER 1007
+#define PFP_EVENT_NONE                0
+#define PFP_EVENT_SCAN                1001
+#define PFP_EVENT_REPLACE             1002
+#define PFP_EVENT_CLEAR               1003
+#define PFP_EVENT_TOGGLE              1004
+#define PFP_EVENT_TOGGLE_COLOR        1005
+#define PFP_EVENT_TOGGLE_WARNING      1006
+#define PFP_EVENT_TOGGLE_QUARTER      1007
+#define PFP_EVENT_DELETE_SELECTED     1008
+#define PFP_EVENT_SAVE_DATA           1009
+#define PFP_EVENT_LOAD_DATA           1010
+#define PFP_EVENT_LOCK_OBJECTS        1011
+#define PFP_EVENT_HIDE_OBJECTS        1012
 
 //==================================================
 // GUI Theme

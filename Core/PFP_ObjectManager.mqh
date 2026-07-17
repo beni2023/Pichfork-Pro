@@ -317,6 +317,87 @@ void DeletePitchforkObjects(const string &pfID)
       m_logger.Debug("ObjectManager: Deleted objects for " + pfID);
 }
 
+//==================================================
+// Toggle Lock All PFP Objects
+//==================================================
+
+void ToggleLockAll()
+{
+   if(m_logger != NULL)
+      m_logger.Info("ObjectManager: Toggling lock state for all PFP objects");
+   
+   int total = ObjectsTotal(0, -1, -1);
+   bool anyLocked = false;
+   
+   // First pass: check if any PFP object is locked
+   for(int i = 0; i < total; i++)
+   {
+      string name = ObjectName(0, i, -1, -1);
+      if(StringFind(name, PFP_PREFIX) == 0)
+      {
+         if(ObjectGetInteger(0, name, OBJPROP_SELECTABLE))
+         {
+            anyLocked = true;
+            break;
+         }
+      }
+   }
+   
+   // Second pass: toggle lock state
+   for(int i = 0; i < total; i++)
+   {
+      string name = ObjectName(0, i, -1, -1);
+      if(StringFind(name, PFP_PREFIX) == 0)
+      {
+         ObjectSetInteger(0, name, OBJPROP_SELECTABLE, !anyLocked);
+         ObjectSetInteger(0, name, OBJPROP_HIDDEN, ObjectGetInteger(0, name, OBJPROP_HIDDEN));
+      }
+   }
+   
+   if(m_logger != NULL)
+      m_logger.Info("ObjectManager: Lock state toggled (now: " + (!anyLocked ? "LOCKED" : "UNLOCKED") + ")");
+}
+
+//==================================================
+// Toggle Hide All PFP Objects
+//==================================================
+
+void ToggleHideAll()
+{
+   if(m_logger != NULL)
+      m_logger.Info("ObjectManager: Toggling visibility for all PFP objects");
+   
+   int total = ObjectsTotal(0, -1, -1);
+   bool anyHidden = false;
+   
+   // First pass: check if any PFP object is hidden
+   for(int i = 0; i < total; i++)
+   {
+      string name = ObjectName(0, i, -1, -1);
+      if(StringFind(name, PFP_PREFIX) == 0)
+      {
+         if(ObjectGetInteger(0, name, OBJPROP_HIDDEN))
+         {
+            anyHidden = true;
+            break;
+         }
+      }
+   }
+   
+   // Second pass: toggle visibility
+   for(int i = 0; i < total; i++)
+   {
+      string name = ObjectName(0, i, -1, -1);
+      if(StringFind(name, PFP_PREFIX) == 0)
+      {
+         ObjectSetInteger(0, name, OBJPROP_HIDDEN, !anyHidden);
+      }
+   }
+   
+   if(m_logger != NULL)
+      m_logger.Info("ObjectManager: Visibility toggled (now: " + (!anyHidden ? "HIDDEN" : "VISIBLE") + ")");
+}
+
 };
 
 #endif
