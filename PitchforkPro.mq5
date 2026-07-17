@@ -364,7 +364,7 @@ void OnChartEvent(const int id,
    //--- ارسال رویداد به GUI برای پردازش
    if(g_GUI != NULL)
    {
-      g_GUI.ProcessChartEvent(id, lparam, dparam, sparam);
+      g_GUI.OnChartEvent(id, lparam, sparam);
    }
    
    //--- افزودن رویداد به صف برای پردازش ناهمگام
@@ -551,7 +551,7 @@ void ProcessEventQueue()
             }
          }
          // Toggle Quarter Lines Event
-         else if(eventType == PFP_EVENT_QUARTER_TOGGLE)
+         else if(eventType == PFP_EVENT_TOGGLE_QUARTER)
          {
             g_Logger.Info("Toggle quarter lines requested");
             if(g_Renderer != NULL)
@@ -564,41 +564,59 @@ void ProcessEventQueue()
                   g_Manager.RenderAllActive();
             }
          }
-         // Delete All Event (Dangerous)
-         else if(eventType == PFP_EVENT_DELETE_ALL)
+         // Delete Selected Event (replaces Delete All)
+         else if(eventType == PFP_EVENT_DELETE_SELECTED)
          {
-            g_Logger.Warning("DELETE ALL requested from GUI - Removing ALL pitchforks!");
+            g_Logger.Warning("DELETE SELECTED requested from GUI - Removing selected pitchforks!");
             if(g_Manager != NULL)
             {
+               // TODO: Implement selection-based deletion
+               // For now, remove all until selection system is implemented
                g_Manager.RemoveAll();
                g_SelectedPitchforkID = "";
                Comment("");
-               g_Logger.Info("All pitchforks deleted.");
+               g_Logger.Info("All pitchforks deleted (temporary until selection system).");
             }
          }
          // Save Data Event
          else if(eventType == PFP_EVENT_SAVE_DATA)
          {
             g_Logger.Info("Save data requested from GUI");
-            // TODO: Implement save logic
+            if(g_Manager != NULL)
+            {
+               g_Manager.SaveAll();
+               g_Logger.Info("Data saved successfully.");
+            }
          }
          // Load Data Event
          else if(eventType == PFP_EVENT_LOAD_DATA)
          {
             g_Logger.Info("Load data requested from GUI");
-            // TODO: Implement load logic
+            if(g_Manager != NULL)
+            {
+               g_Manager.LoadAll();
+               g_Logger.Info("Data loaded successfully.");
+            }
          }
          // Lock Objects Event
          else if(eventType == PFP_EVENT_LOCK_OBJECTS)
          {
             g_Logger.Info("Lock/Unlock objects requested");
-            // TODO: Implement lock/unlock logic
+            if(g_ObjectMgr != NULL)
+            {
+               g_ObjectMgr.ToggleLockAll();
+               g_Logger.Info("Objects lock state toggled.");
+            }
          }
          // Hide Objects Event
          else if(eventType == PFP_EVENT_HIDE_OBJECTS)
          {
             g_Logger.Info("Hide/Show objects requested");
-            // TODO: Implement hide/show logic
+            if(g_ObjectMgr != NULL)
+            {
+               g_ObjectMgr.ToggleHideAll();
+               g_Logger.Info("Objects visibility toggled.");
+            }
          }
       }
       
