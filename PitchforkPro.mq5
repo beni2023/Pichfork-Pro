@@ -364,7 +364,7 @@ void OnChartEvent(const int id,
    //--- ارسال رویداد به GUI برای پردازش
    if(g_GUI != NULL)
    {
-      g_GUI.OnChartEvent(id, lparam, sparam);
+      g_GUI.ProcessChartEvent(id, lparam, dparam, sparam);
    }
    
    //--- افزودن رویداد به صف برای پردازش ناهمگام
@@ -551,7 +551,7 @@ void ProcessEventQueue()
             }
          }
          // Toggle Quarter Lines Event
-         else if(eventType == PFP_EVENT_TOGGLE_QUARTER)
+         else if(eventType == PFP_EVENT_QUARTER_TOGGLE)
          {
             g_Logger.Info("Toggle quarter lines requested");
             if(g_Renderer != NULL)
@@ -563,6 +563,42 @@ void ProcessEventQueue()
                if(g_Manager != NULL)
                   g_Manager.RenderAllActive();
             }
+         }
+         // Delete All Event (Dangerous)
+         else if(eventType == PFP_EVENT_DELETE_ALL)
+         {
+            g_Logger.Warning("DELETE ALL requested from GUI - Removing ALL pitchforks!");
+            if(g_Manager != NULL)
+            {
+               g_Manager.RemoveAll();
+               g_SelectedPitchforkID = "";
+               Comment("");
+               g_Logger.Info("All pitchforks deleted.");
+            }
+         }
+         // Save Data Event
+         else if(eventType == PFP_EVENT_SAVE_DATA)
+         {
+            g_Logger.Info("Save data requested from GUI");
+            // TODO: Implement save logic
+         }
+         // Load Data Event
+         else if(eventType == PFP_EVENT_LOAD_DATA)
+         {
+            g_Logger.Info("Load data requested from GUI");
+            // TODO: Implement load logic
+         }
+         // Lock Objects Event
+         else if(eventType == PFP_EVENT_LOCK_OBJECTS)
+         {
+            g_Logger.Info("Lock/Unlock objects requested");
+            // TODO: Implement lock/unlock logic
+         }
+         // Hide Objects Event
+         else if(eventType == PFP_EVENT_HIDE_OBJECTS)
+         {
+            g_Logger.Info("Hide/Show objects requested");
+            // TODO: Implement hide/show logic
          }
       }
       
@@ -584,6 +620,10 @@ void ProcessEventQueue()
 //+------------------------------------------------------------------+
 void OnTimer()
 {
+   // فراخوانی تایمر GUI برای انیمیشن
+   if(g_GUI != NULL)
+      g_GUI.OnTimer();
+   
    // بررسی سلامت اشیاء و پاکسازی اشیاء یتیم
    if(g_ObjectMgr != NULL)
    {
